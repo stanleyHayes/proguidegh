@@ -1,0 +1,102 @@
+# Render Blueprint — ProGuideGH Go services (Spec §24.3)
+#
+# Two services built from the go.work workspace:
+#   - proguidegh-api    (web service, services/api)
+#   - proguidegh-worker (background worker, services/worker)
+#
+# Secrets (DATABASE_URL, REDIS_URL, keys, etc.) are marked `sync: false`:
+# they are NOT stored here — set them once in the Render dashboard
+# (Environment -> Secret Env Vars) or via `render` CLI after the first
+# blueprint sync. Names match .env.example (Spec §25).
+#
+# Database migrations do NOT run on service start. They are a controlled
+# pre-deploy step (see .github/workflows/deploy-staging.yml) and must be
+# backwards-compatible for rolling deploys (Spec §24.3).
+
+services:
+  - type: web
+    name: proguidegh-api
+    runtime: go
+    plan: starter
+    rootDir: services/api
+    buildCommand: go build -o bin/api ./cmd/api && go build -o bin/migrate ./cmd/migrate
+    startCommand: ./bin/api
+    healthCheckPath: /healthz
+    envVars:
+      - key: GO_VERSION
+        value: "1.26"
+      - key: APP_ENV
+        value: staging # override to "production" in the production environment
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: JWT_OR_SESSION_SECRET
+        sync: false
+      - key: R2_ENDPOINT
+        sync: false
+      - key: R2_ACCESS_KEY_ID
+        sync: false
+      - key: R2_SECRET_ACCESS_KEY
+        sync: false
+      - key: R2_BUCKET_PRIVATE
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: PAYMENT_PROVIDER
+        value: paystack
+      - key: PAYSTACK_SECRET_KEY
+        sync: false
+      - key: PAYSTACK_WEBHOOK_SECRET
+        sync: false
+      - key: GOOGLE_MAPS_API_KEY_SERVER
+        sync: false
+      - key: FCM_PROJECT_ID
+        sync: false
+      - key: SENTRY_DSN
+        sync: false
+      - key: SMS_PROVIDER
+        sync: false
+      - key: SMS_API_KEY
+        sync: false
+
+  - type: worker
+    name: proguidegh-worker
+    runtime: go
+    plan: starter
+    rootDir: services/worker
+    buildCommand: go build -o bin/worker ./cmd/worker
+    startCommand: ./bin/worker
+    envVars:
+      - key: GO_VERSION
+        value: "1.26"
+      - key: APP_ENV
+        value: staging
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: JWT_OR_SESSION_SECRET
+        sync: false
+      - key: R2_ENDPOINT
+        sync: false
+      - key: R2_ACCESS_KEY_ID
+        sync: false
+      - key: R2_SECRET_ACCESS_KEY
+        sync: false
+      - key: R2_BUCKET_PRIVATE
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: PAYMENT_PROVIDER
+        value: paystack
+      - key: PAYSTACK_SECRET_KEY
+        sync: false
+      - key: FCM_PROJECT_ID
+        sync: false
+      - key: SENTRY_DSN
+        sync: false
+      - key: SMS_PROVIDER
+        sync: false
+      - key: SMS_API_KEY
+        sync: false

@@ -1,0 +1,49 @@
+"use client";
+
+import { useId } from "react";
+import type { ReactNode, SelectHTMLAttributes } from "react";
+
+export interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
+  /** Visible label, always rendered and associated via htmlFor. */
+  label: string;
+  /** Error message; marks the control aria-invalid and links it via aria-describedby. */
+  error?: string;
+  /** Optional helper text shown above the control. */
+  hint?: string;
+  children: ReactNode;
+}
+
+export function Select({ label, error, hint, id, children, ...rest }: SelectProps) {
+  const autoId = useId();
+  const fieldId = id ?? autoId;
+  const hintId = hint ? `${fieldId}-hint` : undefined;
+  const errorId = error ? `${fieldId}-error` : undefined;
+  const describedBy = [hintId, errorId].filter(Boolean).join(" ") || undefined;
+
+  return (
+    <div className={`gg-field${error ? " gg-field--invalid" : ""}`}>
+      <label className="gg-field__label" htmlFor={fieldId}>
+        {label}
+      </label>
+      {hint ? (
+        <p className="gg-field__hint" id={hintId}>
+          {hint}
+        </p>
+      ) : null}
+      <select
+        className="gg-field__control"
+        id={fieldId}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={describedBy}
+        {...rest}
+      >
+        {children}
+      </select>
+      {error ? (
+        <p className="gg-field__error" id={errorId} role="alert">
+          {error}
+        </p>
+      ) : null}
+    </div>
+  );
+}

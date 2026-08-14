@@ -1,0 +1,22 @@
+{
+  "name": "@proguidegh/contracts",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "generate": "openapi-typescript ../../docs/api/openapi.yaml -o src/generated.ts",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@proguidegh/config": "workspace:*",
+    "eslint": "^10.8.1",
+    "openapi-typescript": "^7.10.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.67.0"
+  }
+}

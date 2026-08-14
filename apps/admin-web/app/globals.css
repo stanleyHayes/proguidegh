@@ -1,0 +1,120 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--gg-font-sans);
+  color: var(--gg-color-ink);
+  background: var(--gg-color-surface-alt);
+  line-height: 1.5;
+}
+
+/* Admin is desktop-optimized but still responsive (per spec §18.4). */
+.container {
+  width: 100%;
+  max-width: var(--gg-content-max);
+  margin: 0 auto;
+  padding: var(--gg-space-4);
+}
+
+@media (min-width: 48rem) {
+  .container {
+    padding: var(--gg-space-8);
+  }
+}
+
+.site-header {
+  background: var(--gg-color-ink);
+  color: #ffffff;
+}
+
+.site-header__inner {
+  display: flex;
+  align-items: center;
+  gap: var(--gg-space-3);
+  padding-top: var(--gg-space-3);
+  padding-bottom: var(--gg-space-3);
+}
+
+.site-header__brand {
+  font-weight: 700;
+  font-size: var(--gg-text-lg);
+  text-decoration: none;
+  color: #ffffff;
+}
+
+main {
+  padding: var(--gg-space-6) 0 var(--gg-space-12);
+}
+
+.stack {
+  display: grid;
+  gap: var(--gg-space-6);
+}
+
+.grid {
+  display: grid;
+  gap: var(--gg-space-4);
+}
+
+@media (min-width: 40rem) {
+  .grid--cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .grid--cols-4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+a:focus-visible {
+  outline: 3px solid var(--gg-color-focus);
+  outline-offset: 2px;
+}
+
+.muted {
+  color: var(--gg-color-muted);
+}
+
+.stat {
+  font-size: var(--gg-text-2xl);
+  font-weight: 700;
+  color: var(--gg-color-ink);
+  margin: 0;
+}
+
+.nav-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gg-space-3);
+}
+
+.pipeline-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--gg-space-3);
+}
+
+.pipeline-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gg-space-3);
+  padding: var(--gg-space-3);
+  border: 1px solid var(--gg-color-border);
+  border-radius: var(--gg-radius-sm);
+  background: var(--gg-color-surface);
+}
+
+.filter-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gg-space-2);
+}

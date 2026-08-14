@@ -1,0 +1,49 @@
+/**
+ * ProGuideGH design tokens (Phase 0).
+ * Mobile-first; consumed by all web apps. Extend — don't hardcode — in apps.
+ */
+:root {
+  /* Brand colors (accessible contrast on white) */
+  --gg-color-primary: #0b6e4f; /* Ghana green */
+  --gg-color-primary-strong: #084c36;
+  --gg-color-accent: #c8102e; /* Ghana red */
+  --gg-color-gold: #f5b70a; /* Ghana gold */
+  --gg-color-ink: #1a1a1a;
+  --gg-color-muted: #5a5a5a;
+  --gg-color-surface: #ffffff;
+  --gg-color-surface-alt: #f6f7f6;
+  --gg-color-border: #d9ddd9;
+  --gg-color-focus: #1d4ed8;
+
+  /* Status */
+  --gg-color-success: #0b6e4f;
+  --gg-color-warning: #92400e;
+  --gg-color-danger: #b91c1c;
+
+  /* Typography */
+  --gg-font-sans:
+    system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    sans-serif;
+  --gg-text-sm: 0.875rem;
+  --gg-text-base: 1rem;
+  --gg-text-lg: 1.125rem;
+  --gg-text-xl: 1.375rem;
+  --gg-text-2xl: 1.75rem;
+
+  /* Spacing scale */
+  --gg-space-1: 0.25rem;
+  --gg-space-2: 0.5rem;
+  --gg-space-3: 0.75rem;
+  --gg-space-4: 1rem;
+  --gg-space-6: 1.5rem;
+  --gg-space-8: 2rem;
+  --gg-space-12: 3rem;
+
+  /* Radii */
+  --gg-radius-sm: 0.375rem;
+  --gg-radius-md: 0.75rem;
+  --gg-radius-full: 999px;
+
+  /* Layout */
+  --gg-content-max: 72rem;
+}

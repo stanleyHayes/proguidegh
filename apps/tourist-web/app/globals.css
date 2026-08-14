@@ -1,0 +1,233 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--gg-font-sans);
+  color: var(--gg-color-ink);
+  background: var(--gg-color-surface-alt);
+  line-height: 1.5;
+}
+
+/* Mobile-first container; widens on larger screens. */
+.container {
+  width: 100%;
+  max-width: var(--gg-content-max);
+  margin: 0 auto;
+  padding: var(--gg-space-4);
+}
+
+@media (min-width: 48rem) {
+  .container {
+    padding: var(--gg-space-8);
+  }
+}
+
+.site-header {
+  background: var(--gg-color-surface);
+  border-bottom: 1px solid var(--gg-color-border);
+}
+
+.site-header__inner {
+  display: flex;
+  align-items: center;
+  gap: var(--gg-space-3);
+  padding-top: var(--gg-space-3);
+  padding-bottom: var(--gg-space-3);
+}
+
+.site-header__brand {
+  font-weight: 700;
+  font-size: var(--gg-text-lg);
+  text-decoration: none;
+  color: var(--gg-color-primary);
+}
+
+main {
+  padding: var(--gg-space-6) 0 var(--gg-space-12);
+}
+
+.stack {
+  display: grid;
+  gap: var(--gg-space-6);
+}
+
+.grid {
+  display: grid;
+  gap: var(--gg-space-4);
+}
+
+@media (min-width: 40rem) {
+  .grid--cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .grid--cols-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+a:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid var(--gg-color-focus);
+  outline-offset: 2px;
+}
+
+.field {
+  display: grid;
+  gap: var(--gg-space-2);
+}
+
+.field label {
+  font-weight: 600;
+}
+
+.field input,
+.field select {
+  min-height: 2.75rem;
+  padding: var(--gg-space-2) var(--gg-space-3);
+  border: 1px solid var(--gg-color-border);
+  border-radius: var(--gg-radius-sm);
+  font: inherit;
+  background: var(--gg-color-surface);
+}
+
+.muted {
+  color: var(--gg-color-muted);
+}
+
+.nav-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gg-space-3);
+}
+
+/* Search filter bar: stacks on mobile, spreads on wider screens. */
+.filter-grid {
+  display: grid;
+  gap: var(--gg-space-4);
+}
+
+@media (min-width: 40rem) {
+  .filter-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 64rem) {
+  .filter-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: var(--gg-space-2);
+  min-height: 2.75rem;
+  font-weight: 400;
+}
+
+.checkbox-row input {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gg-space-2);
+}
+
+/* Rating stars (star glyph in Ghana gold, numeric rating in ink for contrast). */
+.stars {
+  color: var(--gg-color-ink);
+  font-weight: 700;
+  margin: 0;
+}
+
+.stars [aria-hidden="true"] {
+  color: var(--gg-color-gold);
+}
+
+/* Price breakdown / key-value rows. */
+.quote-panel {
+  padding: var(--gg-space-4);
+  border: 1px solid var(--gg-color-border);
+  border-radius: var(--gg-radius-md);
+  background: var(--gg-color-surface);
+}
+
+.quote-panel__title {
+  margin: 0 0 var(--gg-space-2);
+  font-weight: 700;
+}
+
+.quote-rows {
+  display: grid;
+  gap: var(--gg-space-2);
+  margin: 0;
+}
+
+.quote-row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--gg-space-4);
+}
+
+.quote-row dt {
+  font-weight: 600;
+}
+
+.quote-row dd {
+  margin: 0;
+  text-align: right;
+}
+
+/* Booking status timeline. */
+.timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--gg-space-3);
+}
+
+.timeline__item {
+  display: flex;
+  align-items: center;
+  gap: var(--gg-space-3);
+}
+
+.timeline__marker {
+  flex: none;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: var(--gg-radius-full);
+  border: 2px solid var(--gg-color-border);
+  background: var(--gg-color-surface);
+}
+
+.timeline__item--done .timeline__marker {
+  background: var(--gg-color-success);
+  border-color: var(--gg-color-success);
+}
+
+.timeline__item--current .timeline__marker {
+  background: var(--gg-color-gold);
+  border-color: var(--gg-color-gold);
+}
+
+.timeline__item--current {
+  font-weight: 700;
+}
+
+.timeline__label--pending {
+  color: var(--gg-color-muted);
+}

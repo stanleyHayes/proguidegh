@@ -1,0 +1,18 @@
+{
+  "name": "@proguidegh/config",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./tsconfig.base.json": "./tsconfig.base.json",
+    "./eslint.config.base.mjs": "./eslint.config.base.mjs"
+  },
+  "files": [
+    "tsconfig.base.json",
+    "eslint.config.base.mjs"
+  ],
+  "dependencies": {
+    "@eslint/js": "^10.0.1",
+    "typescript-eslint": "^8.67.0"
+  }
+}

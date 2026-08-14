@@ -1,0 +1,862 @@
+/**
+ * ProGuideGH marketing site — visual system.
+ *
+ * The site's job is to make one argument: you are booking a credentialed
+ * person, not a listing. The signature object is the guide credential card,
+ * and everything around it stays quiet so the card is the thing you remember.
+ * Two brand colours carry the page — deep green and a single gold accent —
+ * and red is reserved for genuine danger states, never decoration.
+ *
+ * Brand colours come from the same values as @proguidegh/tokens (the parity
+ * check in packages/tokens governs them); the deep field and paper tones below
+ * are marketing-only extensions of that palette.
+ */
+
+:root {
+  /* Brand — identical values to @proguidegh/tokens */
+  --green: #0b6e4f;
+  --green-strong: #084c36;
+  --gold: #f5b70a;
+  --red: #c8102e;
+  --ink: #1a1a1a;
+  --muted: #5a5a5a;
+  --surface: #ffffff;
+  --paper: #f6f7f6;
+  --border: #d9ddd9;
+
+  /* Marketing-only extensions */
+  --field: #052a1d; /* deep green ground for the hero and footer */
+  --field-2: #063a29;
+  --ink-invert: #f2f5f2;
+  --muted-invert: #9fb4a8;
+
+  --measure: 62ch;
+  --radius: 14px;
+  --radius-sm: 8px;
+
+  --step--1: clamp(0.83rem, 0.8rem + 0.15vw, 0.9rem);
+  --step-0: clamp(1rem, 0.96rem + 0.2vw, 1.09rem);
+  --step-1: clamp(1.2rem, 1.1rem + 0.5vw, 1.5rem);
+  --step-2: clamp(1.5rem, 1.3rem + 1vw, 2.1rem);
+  --step-3: clamp(1.9rem, 1.5rem + 2vw, 3rem);
+  --step-4: clamp(2.4rem, 1.7rem + 3.4vw, 4.4rem);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-size: var(--step-0);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin: 0;
+  text-wrap: balance;
+}
+
+p {
+  margin: 0;
+  text-wrap: pretty;
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+}
+.skip-link:focus {
+  left: 1rem;
+  top: 1rem;
+  z-index: 100;
+  background: var(--gold);
+  color: var(--ink);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+}
+
+/* ---------------------------------------------------------------- layout */
+
+.wrap {
+  width: 100%;
+  max-width: 1140px;
+  margin: 0 auto;
+  padding-inline: 1.25rem;
+}
+
+@media (min-width: 48rem) {
+  .wrap {
+    padding-inline: 2rem;
+  }
+}
+
+.band {
+  padding-block: clamp(3.5rem, 8vw, 6.5rem);
+}
+
+.band--paper {
+  background: var(--paper);
+}
+.band--surface {
+  background: var(--surface);
+}
+.band--field {
+  background: var(--field);
+  color: var(--ink-invert);
+}
+.band--field h2,
+.band--field h3 {
+  color: var(--ink-invert);
+}
+
+/* ---------------------------------------------------------------- rules
+
+   Section boundaries are a hairline, not a device. The bands already alternate
+   ground, so the rule only has to mark the seam; anything louder competes with
+   the credential card, which is the one thing here worth remembering.      */
+
+.rule {
+  height: 1px;
+  border: 0;
+  margin: 0;
+  background: var(--border);
+}
+
+/* On the dark field a border-grey hairline vanishes, so the seam under the
+   nav and above the footer is a low-opacity gold instead. */
+.rule--onField {
+  height: 1px;
+  background: rgb(245 183 10 / 0.38);
+}
+
+/* -------------------------------------------------------------- typography */
+
+.eyebrow {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: var(--step--1);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--green);
+  margin: 0 0 1rem;
+}
+
+.band--field .eyebrow {
+  color: var(--gold);
+}
+
+.display {
+  font-size: var(--step-4);
+}
+.h2 {
+  font-size: var(--step-3);
+}
+.h3 {
+  font-size: var(--step-1);
+}
+
+.lede {
+  font-size: var(--step-1);
+  line-height: 1.45;
+  color: var(--muted);
+  max-width: var(--measure);
+}
+
+.band--field .lede {
+  color: var(--muted-invert);
+}
+
+.prose {
+  max-width: var(--measure);
+  color: var(--muted);
+}
+.prose > * + * {
+  margin-top: 1rem;
+}
+
+/* ------------------------------------------------------------------ hero */
+
+.hero {
+  background: var(--field);
+  background-image: radial-gradient(
+    ellipse 120% 90% at 78% 0%,
+    var(--field-2) 0%,
+    var(--field) 62%
+  );
+  color: var(--ink-invert);
+  padding-block: clamp(3rem, 7vw, 5.5rem) clamp(3.5rem, 8vw, 6rem);
+  overflow: hidden;
+}
+
+.hero__grid {
+  display: grid;
+  gap: clamp(2.5rem, 6vw, 4rem);
+  align-items: center;
+}
+
+@media (min-width: 62rem) {
+  .hero__grid {
+    grid-template-columns: 1.05fr 0.95fr;
+  }
+}
+
+.hero__headline {
+  font-size: var(--step-4);
+  color: var(--surface);
+  max-width: 15ch;
+}
+
+.hero__sub {
+  margin-top: 1.5rem;
+  font-size: var(--step-1);
+  line-height: 1.5;
+  color: var(--muted-invert);
+  max-width: 48ch;
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+
+/* --------------------------------------------- credential card (signature)
+
+   The product is a credentialed person. This card is that claim made into an
+   object: a licence, not a listing tile. It recurs on the guide-recruitment
+   page as a blank card the reader is invited to fill.                     */
+
+.cred {
+  --cred-bg: var(--surface);
+  position: relative;
+  background: var(--cred-bg);
+  border-radius: var(--radius);
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 0.55) inset,
+    0 24px 50px -24px rgb(0 0 0 / 0.55);
+  overflow: hidden;
+  max-width: 27rem;
+  color: var(--ink);
+}
+
+.cred--tilt {
+  transform: rotate(-1.4deg);
+  transition: transform 240ms ease;
+}
+
+@media (hover: hover) {
+  .cred--tilt:hover {
+    transform: rotate(-0.4deg) translateY(-4px);
+  }
+}
+
+.cred__strip {
+  height: 8px;
+  background: var(--green);
+}
+
+.cred__body {
+  padding: 1.25rem 1.35rem 1.35rem;
+}
+
+.cred__top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.cred__issuer {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--green);
+}
+
+.cred__status {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--green-strong);
+  background: rgb(11 110 79 / 0.1);
+  border-radius: 999px;
+  padding: 0.2rem 0.6rem;
+  white-space: nowrap;
+}
+
+.cred__name {
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: 1.9rem;
+  line-height: 1.1;
+  margin: 0.6rem 0 0.15rem;
+  letter-spacing: -0.02em;
+}
+
+.cred__licence {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.cred__rows {
+  margin-top: 1.1rem;
+  border-top: 1px solid var(--border);
+  display: grid;
+  gap: 0.55rem;
+  padding-top: 0.9rem;
+}
+
+.cred__row {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr;
+  gap: 0.75rem;
+  align-items: baseline;
+  font-size: 0.9rem;
+}
+
+.cred__key {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.cred__val {
+  font-weight: 500;
+}
+
+.cred__foot {
+  margin-top: 1.1rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 1.5rem;
+}
+
+.cred__metric {
+  display: grid;
+}
+.cred__metric b {
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: 1.35rem;
+  line-height: 1;
+}
+.cred__metric span {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 0.25rem;
+}
+
+.cred__note {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  color: var(--muted-invert);
+  margin-top: 0.85rem;
+  text-align: center;
+}
+
+.cred--blank .cred__name,
+.cred--blank .cred__val {
+  color: var(--border);
+}
+
+/* --------------------------------------------------------------- buttons */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 1.4rem;
+  border-radius: 999px;
+  border: 2px solid transparent;
+  font: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    transform 140ms ease,
+    background-color 140ms ease,
+    border-color 140ms ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn--gold {
+  background: var(--gold);
+  color: #1a1400;
+}
+.btn--gold:hover {
+  background: #ffc722;
+}
+
+.btn--green {
+  background: var(--green);
+  color: var(--surface);
+}
+.btn--green:hover {
+  background: var(--green-strong);
+}
+
+.btn--ghost {
+  border-color: rgb(255 255 255 / 0.35);
+  color: var(--surface);
+}
+.btn--ghost:hover {
+  border-color: var(--surface);
+}
+
+.btn--outline {
+  border-color: var(--green);
+  color: var(--green);
+}
+.btn--outline:hover {
+  background: rgb(11 110 79 / 0.07);
+}
+
+/* Nav-sized: still clears the 44px touch target. */
+.btn--sm {
+  min-height: 44px;
+  padding: 0 1.1rem;
+  font-size: var(--step--1);
+}
+
+/* ----------------------------------------------------------------- grids */
+
+.grid {
+  display: grid;
+  gap: 1.25rem;
+}
+
+@media (min-width: 40rem) {
+  .grid--2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 58rem) {
+  .grid--3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .grid--4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+}
+
+.card--flat {
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+
+.card h3 {
+  font-size: var(--step-1);
+  margin-bottom: 0.5rem;
+}
+
+.card p {
+  color: var(--muted);
+}
+
+/* --------------------------------------------------- problem → response  */
+
+.swap {
+  display: grid;
+  gap: 0.35rem;
+  padding: 1.35rem 0;
+  border-top: 1px solid var(--border);
+}
+
+@media (min-width: 48rem) {
+  .swap {
+    grid-template-columns: 1fr 1.4fr;
+    gap: 2rem;
+    align-items: start;
+  }
+}
+
+.swap__problem {
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: var(--step-1);
+  letter-spacing: -0.01em;
+}
+
+.swap__response {
+  color: var(--muted);
+}
+
+/* ------------------------------------------------------------- sequence  */
+
+.seq {
+  counter-reset: step;
+  display: grid;
+  gap: 0;
+}
+
+.seq__item {
+  counter-increment: step;
+  display: grid;
+  grid-template-columns: 3rem 1fr;
+  gap: 1.25rem;
+  padding: 1.5rem 0;
+  border-top: 1px solid var(--border);
+}
+
+.seq__item::before {
+  content: counter(step, decimal-leading-zero);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.8rem;
+  color: var(--gold);
+  padding-top: 0.35rem;
+}
+
+.band--field .seq__item {
+  border-color: rgb(255 255 255 / 0.14);
+}
+
+/* ----------------------------------------------------------------- stats */
+
+.stat {
+  border-left: 3px solid var(--gold);
+  padding-left: 1rem;
+}
+
+.stat b {
+  display: block;
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: var(--step-2);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.stat span {
+  display: block;
+  margin-top: 0.4rem;
+  color: var(--muted);
+  font-size: var(--step--1);
+}
+
+.band--field .stat span {
+  color: var(--muted-invert);
+}
+
+.stat cite {
+  display: block;
+  margin-top: 0.35rem;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.62rem;
+  font-style: normal;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  opacity: 0.85;
+}
+
+.band--field .stat cite {
+  color: var(--muted-invert);
+}
+
+/* ------------------------------------------------------------------- faq */
+
+details.faq {
+  border-top: 1px solid var(--border);
+  padding: 1.15rem 0;
+}
+
+details.faq summary {
+  cursor: pointer;
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: var(--step-1);
+  letter-spacing: -0.01em;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: baseline;
+}
+
+details.faq summary::-webkit-details-marker {
+  display: none;
+}
+
+details.faq summary::after {
+  content: "+";
+  font-family: var(--font-mono), ui-monospace, monospace;
+  color: var(--green);
+  font-size: 1.2rem;
+  flex: none;
+}
+
+details.faq[open] summary::after {
+  content: "–";
+}
+
+details.faq p {
+  margin-top: 0.75rem;
+  color: var(--muted);
+  max-width: var(--measure);
+}
+
+/* -------------------------------------------------------------- nav/foot */
+
+.nav {
+  background: var(--field);
+  color: var(--ink-invert);
+}
+
+.nav__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-block: 0.9rem;
+}
+
+.nav__brand {
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+  color: var(--surface);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.nav__links {
+  display: none;
+  gap: 1.4rem;
+  font-size: var(--step--1);
+  margin-left: auto;
+  margin-right: 1.25rem;
+}
+
+@media (min-width: 56rem) {
+  .nav__links {
+    display: flex;
+    align-items: center;
+  }
+}
+
+.nav__links a {
+  color: var(--muted-invert);
+  text-decoration: none;
+}
+
+.nav__links a:hover {
+  color: var(--surface);
+}
+
+.foot {
+  background: var(--field);
+  color: var(--muted-invert);
+  padding-block: 3.5rem 2.5rem;
+}
+
+.foot h4 {
+  color: var(--surface);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin: 0 0 0.9rem;
+  font-weight: 500;
+}
+
+.foot ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+  font-size: var(--step--1);
+}
+
+.foot a {
+  color: var(--muted-invert);
+  text-decoration: none;
+}
+.foot a:hover {
+  color: var(--surface);
+  text-decoration: underline;
+}
+
+.foot__bottom {
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgb(255 255 255 / 0.14);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: space-between;
+  font-size: var(--step--1);
+}
+
+/* ------------------------------------------------------------------ misc */
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.9rem;
+  padding: 0;
+  list-style: none;
+}
+
+.tag {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.25rem 0.65rem;
+  color: var(--muted);
+}
+
+.band--field .tag {
+  border-color: rgb(255 255 255 / 0.22);
+  color: var(--muted-invert);
+}
+
+.callout {
+  border-left: 3px solid var(--red);
+  padding: 0.25rem 0 0.25rem 1.15rem;
+  color: var(--muted);
+  max-width: var(--measure);
+}
+
+.section-head {
+  margin-bottom: 2.5rem;
+  max-width: var(--measure);
+}
+
+.split {
+  display: grid;
+  gap: 2.5rem;
+}
+
+@media (min-width: 62rem) {
+  .split {
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+  }
+}
+
+.reveal {
+  animation: rise 620ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+/* ------------------------------------------------- long-form legal document
+
+   Narrower measure than the marketing bands: these are read start to finish,
+   not scanned, and 66ch is where sustained reading stops being work.        */
+
+.doc {
+  max-width: 68ch;
+}
+
+.doc__h2 {
+  font-size: var(--step-1);
+  margin-top: 2.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.doc__h2:first-child {
+  margin-top: 0;
+}
+
+.doc__h3 {
+  font-size: var(--step-0);
+  font-weight: 600;
+  margin-top: 1.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.doc__p {
+  color: var(--muted);
+  margin-bottom: 1rem;
+  line-height: 1.7;
+}
+
+.doc__list {
+  color: var(--muted);
+  margin: 0 0 1.25rem;
+  padding-left: 1.35rem;
+  line-height: 1.7;
+}
+
+.doc__list li + li {
+  margin-top: 0.5rem;
+}
+
+.doc__version {
+  margin-top: 1.5rem;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  color: var(--muted-invert);
+}

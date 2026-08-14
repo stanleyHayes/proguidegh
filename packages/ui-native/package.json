@@ -1,0 +1,31 @@
+{
+  "name": "@proguidegh/ui-native",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.tsx",
+    "./privacy": "./src/privacy.tsx"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-native": ">=0.86.0"
+  },
+  "dependencies": {
+    "@proguidegh/tokens": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/react": "~19.2.2",
+    "eslint": "^9.39.5",
+    "eslint-config-expo": "~57.0.1",
+    "expo": "~57.0.12",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-native": "0.86.2",
+    "typescript": "~6.0.3"
+  }
+}

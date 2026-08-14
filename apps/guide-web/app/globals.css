@@ -1,0 +1,250 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--gg-font-sans);
+  color: var(--gg-color-ink);
+  background: var(--gg-color-surface-alt);
+  line-height: 1.5;
+}
+
+/* Mobile-first container; widens on larger screens. */
+.container {
+  width: 100%;
+  max-width: var(--gg-content-max);
+  margin: 0 auto;
+  padding: var(--gg-space-4);
+}
+
+@media (min-width: 48rem) {
+  .container {
+    padding: var(--gg-space-8);
+  }
+}
+
+.site-header {
+  background: var(--gg-color-surface);
+  border-bottom: 1px solid var(--gg-color-border);
+}
+
+.site-header__inner {
+  display: flex;
+  align-items: center;
+  gap: var(--gg-space-3);
+  padding-top: var(--gg-space-3);
+  padding-bottom: var(--gg-space-3);
+}
+
+.site-header__brand {
+  font-weight: 700;
+  font-size: var(--gg-text-lg);
+  text-decoration: none;
+  color: var(--gg-color-primary);
+}
+
+main {
+  padding: var(--gg-space-6) 0 var(--gg-space-12);
+}
+
+.stack {
+  display: grid;
+  gap: var(--gg-space-6);
+}
+
+.grid {
+  display: grid;
+  gap: var(--gg-space-4);
+}
+
+@media (min-width: 40rem) {
+  .grid--cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .grid--cols-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+a:focus-visible {
+  outline: 3px solid var(--gg-color-focus);
+  outline-offset: 2px;
+}
+
+.muted {
+  color: var(--gg-color-muted);
+}
+
+.stat {
+  font-size: var(--gg-text-2xl);
+  font-weight: 700;
+  color: var(--gg-color-ink);
+  margin: 0;
+}
+
+.nav-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gg-space-3);
+}
+
+.pipeline-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--gg-space-3);
+}
+
+.pipeline-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gg-space-3);
+  padding: var(--gg-space-3);
+  border: 1px solid var(--gg-color-border);
+  border-radius: var(--gg-radius-sm);
+  background: var(--gg-color-surface);
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: var(--gg-space-2);
+  min-height: 2.75rem; /* 44px touch target */
+}
+
+.checkbox-row input[type="checkbox"] {
+  width: 1.25rem;
+  height: 1.25rem;
+  accent-color: var(--gg-color-primary);
+}
+
+/* Definition-list rows (job offers, tour details). */
+.quote-rows {
+  display: grid;
+  gap: var(--gg-space-2);
+  margin: 0;
+}
+
+.quote-row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--gg-space-4);
+}
+
+.quote-row dt {
+  font-weight: 600;
+}
+
+.quote-row dd {
+  margin: 0;
+  text-align: right;
+}
+
+/* Tour progress stepper. */
+.timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--gg-space-3);
+}
+
+.timeline__item {
+  display: flex;
+  align-items: center;
+  gap: var(--gg-space-3);
+}
+
+.timeline__marker {
+  flex: none;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: var(--gg-radius-full);
+  border: 2px solid var(--gg-color-border);
+  background: var(--gg-color-surface);
+}
+
+.timeline__item--done .timeline__marker {
+  background: var(--gg-color-success);
+  border-color: var(--gg-color-success);
+}
+
+.timeline__item--current .timeline__marker {
+  background: var(--gg-color-gold);
+  border-color: var(--gg-color-gold);
+}
+
+.timeline__item--current {
+  font-weight: 700;
+}
+
+.timeline__label--pending {
+  color: var(--gg-color-muted);
+}
+
+/* Job offer cards. */
+.offer-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--gg-space-4);
+}
+
+.offer-card {
+  display: grid;
+  gap: var(--gg-space-3);
+  padding: var(--gg-space-4);
+  border: 1px solid var(--gg-color-border);
+  border-radius: var(--gg-radius-sm);
+  background: var(--gg-color-surface);
+}
+
+.offer-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gg-space-3);
+}
+
+/* Expired offers grey out in place until the next refresh drops them. */
+.offer-card--expired {
+  opacity: 0.55;
+}
+
+/* Pulsing "sharing location" indicator. */
+.live-indicator {
+  display: flex;
+  align-items: center;
+  gap: var(--gg-space-2);
+  font-weight: 600;
+  color: var(--gg-color-success);
+  margin-top: 0;
+}
+
+.live-indicator__dot {
+  flex: none;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: var(--gg-radius-full);
+  background: var(--gg-color-success);
+  animation: gg-live-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes gg-live-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}

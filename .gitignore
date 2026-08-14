@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+dist/
+build/
+.next/
+out/
+coverage/
+bin/
+
+# Env / secrets — never commit real values
+.env
+.env.*
+!.env.example
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Go
+*.test
+*.out
+vendor/
+
+# Logs
+*.log
+
+# Database dumps — these contain real rows, password hashes and encrypted
+# MFA secrets. They never belong in version control.
+backups/
+*.dump
+*.sql.gz
+
+# Raven agent session state (local tooling, not project source)
+.raven/
+
+# Expo generated
+.expo/
+apps/*/android/
+apps/*/ios/

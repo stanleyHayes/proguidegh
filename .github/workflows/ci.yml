@@ -1,0 +1,239 @@
+# CI — pull request + push-to-main pipeline (Spec §24.2)
+# Gates: formatting/linting, unit tests, integration tests against disposable
+# PostgreSQL/Redis, Go + Next.js builds, OpenAPI contract drift check,
+# migration validation, dependency/security scanning.
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  GO_VERSION: "1.26"
+  NODE_VERSION: "22"
+  PNPM_VERSION: "10"
+  # Integration-test datastores are ephemeral service containers (Spec §24.1: CI uses ephemeral databases).
+  DATABASE_URL: postgres://proguidegh:proguidegh@localhost:5432/proguidegh?sslmode=disable
+  REDIS_URL: redis://localhost:6379
+
+jobs:
+  go:
+    name: Go (fmt, vet, staticcheck, test, migrate, build)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: proguidegh
+          POSTGRES_PASSWORD: proguidegh
+          POSTGRES_DB: proguidegh
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U proguidegh -d proguidegh"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          # go.work workspace: cache on both modules' sums.
+          cache-dependency-path: |
+            services/api/go.sum
+            services/worker/go.sum
+
+      - name: gofmt check
+        run: |
+          out=$(gofmt -l services)
+          if [ -n "$out" ]; then
+            echo "Files not gofmt-formatted:"
+            echo "$out"
+            exit 1
+          fi
+
+      - name: go vet
+        run: |
+          (cd services/api && go vet ./...)
+          (cd services/worker && go vet ./...)
+
+      - name: staticcheck
+        run: |
+          go install honnef.co/go/tools/cmd/staticcheck@latest
+          (cd services/api && staticcheck ./...)
+          (cd services/worker && staticcheck ./...)
+
+      - name: go test (both modules, against service containers)
+        env:
+          DATABASE_URL: ${{ env.DATABASE_URL }}
+          REDIS_URL: ${{ env.REDIS_URL }}
+        run: |
+          (cd services/api && go test ./...)
+          (cd services/worker && go test ./...)
+
+      - name: migrations up/down round-trip
+        working-directory: services/api
+        env:
+          DATABASE_URL: ${{ env.DATABASE_URL }}
+        run: |
+          go run ./cmd/migrate up
+          go run ./cmd/migrate status
+          go run ./cmd/migrate down
+          go run ./cmd/migrate up
+
+      - name: go build (api, migrate, worker)
+        run: |
+          (cd services/api && go build -o bin/api ./cmd/api && go build -o bin/migrate ./cmd/migrate)
+          (cd services/worker && go build -o bin/worker ./cmd/worker)
+
+  web:
+    name: Web (install, lint, typecheck, build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: install
+        # No lockfile committed yet during scaffolding; enforce once pnpm-lock.yaml lands.
+        run: pnpm install --frozen-lockfile=false
+
+      - name: lint
+        # --if-present tolerates packages that have not added a lint script yet.
+        run: pnpm -r --if-present run lint
+
+      - name: typecheck
+        run: pnpm -r run typecheck
+
+      - name: build
+        run: pnpm -r run build
+
+  mobile:
+    name: Mobile (Expo apps — typecheck, lint, doctor)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: install
+        run: pnpm install --frozen-lockfile=false
+
+      - name: typecheck
+        run: |
+          pnpm --filter @proguidegh/tourist-mobile run typecheck
+          pnpm --filter @proguidegh/guide-mobile run typecheck
+
+      - name: lint
+        run: |
+          pnpm --filter @proguidegh/tourist-mobile run lint
+          pnpm --filter @proguidegh/guide-mobile run lint
+
+      - name: design token parity (web ↔ native)
+        # React Native cannot read tokens.css, so the two are separate files.
+        # This is the only thing stopping them drifting (Phase M, M-01).
+        run: pnpm --filter @proguidegh/tokens run test
+
+      - name: unit tests
+        run: |
+          pnpm --filter @proguidegh/tourist-mobile --if-present run test
+          pnpm --filter @proguidegh/guide-mobile --if-present run test
+
+      - name: expo-doctor
+        # Validates Expo dependency alignment; EAS builds stay out of PR CI (Phase M, M-08).
+        run: |
+          pnpm --filter @proguidegh/tourist-mobile run expo:doctor
+          pnpm --filter @proguidegh/guide-mobile run expo:doctor
+
+  contracts:
+    name: Contracts (OpenAPI drift)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache-dependency-path: |
+            services/api/go.sum
+            services/worker/go.sum
+
+      - name: build api binary
+        run: cd services/api && go build -o bin/api ./cmd/api
+
+      - name: dump generated OpenAPI
+        run: cd services/api && ./bin/api -dump-openapi > /tmp/openapi.generated.yaml
+
+      - name: diff against committed docs/api/openapi.yaml
+        run: |
+          if [ ! -f docs/api/openapi.yaml ]; then
+            echo "::warning::docs/api/openapi.yaml not committed yet; treating generated spec as baseline (commit it to start enforcing drift checks)."
+            cp /tmp/openapi.generated.yaml docs/api/openapi.yaml
+          fi
+          diff -u docs/api/openapi.yaml /tmp/openapi.generated.yaml
+
+  security:
+    name: Security & dependency scanning
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache-dependency-path: |
+            services/api/go.sum
+            services/worker/go.sum
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: install web deps
+        run: pnpm install --frozen-lockfile=false
+
+      - name: govulncheck (Go)
+        run: |
+          go install golang.org/x/vuln/cmd/govulncheck@latest
+          (cd services/api && govulncheck ./...)
+          (cd services/worker && govulncheck ./...)
+
+      - name: pnpm audit (advisory)
+        # Non-blocking while the dependency tree is in flux; tighten once stable.
+        continue-on-error: true
+        run: pnpm audit --audit-level=high

@@ -1,0 +1,221 @@
+/* Shared component styles for @proguidegh/ui primitives. */
+
+/* ---- Button ---- */
+.gg-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gg-space-2);
+  min-height: 2.75rem; /* 44px touch target (mobile-first) */
+  padding: var(--gg-space-3) var(--gg-space-6);
+  border: 1px solid transparent;
+  border-radius: var(--gg-radius-sm);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+.gg-button:focus-visible {
+  outline: 3px solid var(--gg-color-focus);
+  outline-offset: 2px;
+}
+.gg-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.gg-button--primary {
+  background: var(--gg-color-primary);
+  color: #ffffff;
+}
+.gg-button--primary:hover:not(:disabled) {
+  background: var(--gg-color-primary-strong);
+}
+.gg-button--secondary {
+  background: var(--gg-color-surface);
+  color: var(--gg-color-ink);
+  border-color: var(--gg-color-border);
+}
+.gg-button--secondary:hover:not(:disabled) {
+  background: var(--gg-color-surface-alt);
+}
+
+/* ---- Card ---- */
+.gg-card {
+  background: var(--gg-color-surface);
+  border: 1px solid var(--gg-color-border);
+  border-radius: var(--gg-radius-md);
+  padding: var(--gg-space-6);
+}
+.gg-card__title {
+  margin: 0 0 var(--gg-space-2);
+  font-size: var(--gg-text-lg);
+}
+.gg-card__body {
+  color: var(--gg-color-muted);
+}
+
+/* ---- Badge ---- */
+.gg-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--gg-space-1) var(--gg-space-3);
+  border-radius: var(--gg-radius-full);
+  font-size: var(--gg-text-sm);
+  font-weight: 600;
+  line-height: 1.4;
+}
+.gg-badge--neutral {
+  background: var(--gg-color-surface-alt);
+  color: var(--gg-color-ink);
+  border: 1px solid var(--gg-color-border);
+}
+.gg-badge--success {
+  background: #e6f4ee;
+  color: var(--gg-color-success);
+}
+.gg-badge--warning {
+  background: #fdf3e3;
+  color: var(--gg-color-warning);
+}
+.gg-badge--danger {
+  background: #fdeaea;
+  color: var(--gg-color-danger);
+}
+
+/* ---- Field (form primitives: Input, Select, Textarea) ---- */
+.gg-field {
+  display: grid;
+  gap: var(--gg-space-2);
+}
+.gg-field__label {
+  font-weight: 600;
+}
+.gg-field__hint {
+  margin: 0;
+  font-size: var(--gg-text-sm);
+  color: var(--gg-color-muted);
+}
+.gg-field__control {
+  min-height: 2.75rem; /* 44px touch target (mobile-first) */
+  padding: var(--gg-space-2) var(--gg-space-3);
+  border: 1px solid var(--gg-color-border);
+  border-radius: var(--gg-radius-sm);
+  font: inherit;
+  color: var(--gg-color-ink);
+  background: var(--gg-color-surface);
+}
+textarea.gg-field__control {
+  min-height: 6rem;
+  resize: vertical;
+}
+.gg-field__control:focus-visible {
+  outline: 3px solid var(--gg-color-focus);
+  outline-offset: 2px;
+}
+.gg-field__control:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: var(--gg-color-surface-alt);
+}
+.gg-field--invalid .gg-field__control {
+  border-color: var(--gg-color-danger);
+}
+.gg-field__error {
+  margin: 0;
+  font-size: var(--gg-text-sm);
+  font-weight: 600;
+  color: var(--gg-color-danger);
+}
+
+/* ---- Fieldset ---- */
+.gg-fieldset {
+  display: grid;
+  gap: var(--gg-space-3);
+  margin: 0;
+  padding: var(--gg-space-4);
+  border: 1px solid var(--gg-color-border);
+  border-radius: var(--gg-radius-md);
+}
+.gg-fieldset--invalid {
+  border-color: var(--gg-color-danger);
+}
+.gg-fieldset__legend {
+  padding: 0 var(--gg-space-2);
+  font-weight: 700;
+}
+
+/* ---- Alert (banners) ---- */
+.gg-alert {
+  padding: var(--gg-space-3) var(--gg-space-4);
+  border: 1px solid var(--gg-color-border);
+  border-radius: var(--gg-radius-sm);
+  background: var(--gg-color-surface-alt);
+  color: var(--gg-color-ink);
+}
+.gg-alert--error {
+  background: #fdeaea;
+  border-color: #f0b9b9;
+  color: var(--gg-color-danger);
+}
+.gg-alert--success {
+  background: #e6f4ee;
+  border-color: #bfe3d3;
+  color: var(--gg-color-success);
+}
+.gg-alert__title {
+  margin: 0 0 var(--gg-space-1);
+  font-weight: 700;
+}
+.gg-alert__body > p {
+  margin: 0;
+}
+
+/* ---- Skeleton (loading placeholders) ---- */
+.gg-skeleton {
+  border-radius: var(--gg-radius-sm);
+  background: linear-gradient(
+    90deg,
+    var(--gg-color-border) 25%,
+    var(--gg-color-surface-alt) 50%,
+    var(--gg-color-border) 75%
+  );
+  background-size: 200% 100%;
+  animation: gg-skeleton-pulse 1.2s ease-in-out infinite;
+}
+@keyframes gg-skeleton-pulse {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gg-skeleton {
+    animation: none;
+  }
+}
+
+/* ---- Table (tabular fallback for operational state, spec §18.4) ---- */
+.gg-table-scroll {
+  overflow-x: auto;
+}
+.gg-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--gg-color-surface);
+}
+.gg-table th,
+.gg-table td {
+  padding: var(--gg-space-3);
+  text-align: left;
+  border-bottom: 1px solid var(--gg-color-border);
+  vertical-align: middle;
+}
+.gg-table th {
+  font-size: var(--gg-text-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--gg-color-muted);
+}

@@ -1,0 +1,97 @@
+# Deploy staging — manual skeleton (Spec §24.1/§24.3)
+#
+# Target architecture: Vercel deploys the three Next.js apps, Render deploys
+# the Go api + worker (see infra/render/render.yaml), and database migrations
+# run as a controlled pre-deploy step. Migrations must be backwards-compatible
+# for rolling deploys; destructive migrations are never auto-run (Spec §24.3).
+#
+# This workflow is intentionally a skeleton: no credentials exist yet, so every
+# real action is an echoed TODO(env) placeholder. Wire up the referenced
+# secrets, then replace the echo steps with the real commands.
+name: deploy-staging
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Git ref (branch/tag/sha) to deploy"
+        default: main
+      run_migrations:
+        description: "Run pre-deploy database migrations"
+        type: boolean
+        default: true
+
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: false
+
+env:
+  APP_ENV: staging
+
+jobs:
+  migrate:
+    name: Pre-deploy migrations (controlled)
+    environment: staging
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.26"
+
+      - name: migrate status + up against staging Postgres
+        if: ${{ inputs.run_migrations }}
+        env:
+          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+        run: |
+          # TODO(env): requires STAGING_DATABASE_URL secret (Render Postgres connection string).
+          echo "TODO(env): (cd services/api && go run ./cmd/migrate status && go run ./cmd/migrate up)"
+          echo "Migrations must be backwards-compatible (Spec §24.3)."
+
+  deploy-api:
+    name: Deploy api to Render
+    environment: staging
+    runs-on: ubuntu-latest
+    needs: migrate
+    steps:
+      - name: Trigger Render deploy (api)
+        run: |
+          # TODO(env): requires RENDER_DEPLOY_HOOK_API secret (Render dashboard -> service -> Settings -> Deploy Hook).
+          echo "TODO(env): curl -fsSL -X POST \"\$RENDER_DEPLOY_HOOK_API\""
+          echo "Render Blueprint: infra/render/render.yaml (service: proguidegh-api)"
+
+  deploy-worker:
+    name: Deploy worker to Render
+    environment: staging
+    runs-on: ubuntu-latest
+    needs: migrate
+    steps:
+      - name: Trigger Render deploy (worker)
+        run: |
+          # TODO(env): requires RENDER_DEPLOY_HOOK_WORKER secret.
+          echo "TODO(env): curl -fsSL -X POST \"\$RENDER_DEPLOY_HOOK_WORKER\""
+          echo "Render Blueprint: infra/render/render.yaml (service: proguidegh-worker)"
+
+  deploy-web:
+    name: Deploy Next.js apps to Vercel
+    environment: staging
+    runs-on: ubuntu-latest
+    needs: migrate
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [tourist-web, guide-web, admin-web]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Vercel deploy (${{ matrix.app }})
+        run: |
+          # TODO(env): requires VERCEL_TOKEN, VERCEL_ORG_ID and VERCEL_PROJECT_ID_<APP> secrets.
+          # See infra/vercel/README.md for project/root-dir mapping.
+          echo "TODO(env): pnpm dlx vercel deploy --yes --token \"\$VERCEL_TOKEN\" (root: apps/${{ matrix.app }})"
+          echo "Note: Vercel-connected Git already provides PR previews (Spec §24.2); this job is for the staging track."
