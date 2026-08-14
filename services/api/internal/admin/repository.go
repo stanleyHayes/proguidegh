@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -62,6 +63,23 @@ var ErrUserNotFound = errors.New("admin: user not found")
 // ErrUnknownRole is returned when a role code does not exist.
 var ErrUnknownRole = errors.New("admin: unknown role code")
 
+var (
+	ErrInvitationExists  = errors.New("admin: pending invitation already exists")
+	ErrInvitationInvalid = errors.New("admin: invitation is invalid or expired")
+	ErrEmailInUse        = errors.New("admin: email already belongs to an account")
+)
+
+type Invitation struct {
+	ID         string     `json:"id"`
+	Email      string     `json:"email"`
+	Roles      []string   `json:"roles"`
+	InvitedBy  *string    `json:"invited_by"`
+	ExpiresAt  time.Time  `json:"expires_at"`
+	AcceptedAt *time.Time `json:"accepted_at"`
+	RevokedAt  *time.Time `json:"revoked_at"`
+	CreatedAt  time.Time  `json:"created_at"`
+}
+
 // Repository owns admin persistence (explicit SQL, spec §7.2).
 type Repository struct {
 	pool *pgxpool.Pool
@@ -69,6 +87,91 @@ type Repository struct {
 
 // NewRepository builds the repository.
 func NewRepository(pool *pgxpool.Pool) *Repository { return &Repository{pool: pool} }
+
+func (r *Repository) CreateInvitation(ctx context.Context, email string, roles []string, tokenHash, invitedBy string, expiresAt time.Time) (Invitation, error) {
+	var existing bool
+	if err := r.pool.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM users WHERE lower(email) = lower($1))`, email).Scan(&existing); err != nil {
+		return Invitation{}, fmt.Errorf("admin: check invitation email: %w", err)
+	}
+	if existing {
+		return Invitation{}, ErrEmailInUse
+	}
+	var unknown int
+	if err := r.pool.QueryRow(ctx, `SELECT count(*) FROM unnest($1::text[]) c WHERE c NOT IN (SELECT code FROM roles)`, roles).Scan(&unknown); err != nil {
+		return Invitation{}, fmt.Errorf("admin: validate invitation roles: %w", err)
+	}
+	if unknown > 0 {
+		return Invitation{}, ErrUnknownRole
+	}
+	var inv Invitation
+	err := r.pool.QueryRow(ctx, `INSERT INTO admin_invitations (email, roles, token_hash, invited_by, expires_at) VALUES (lower($1), $2, $3, $4, $5) RETURNING id, email, roles, invited_by, expires_at, accepted_at, revoked_at, created_at`, email, roles, tokenHash, invitedBy, expiresAt).Scan(&inv.ID, &inv.Email, &inv.Roles, &inv.InvitedBy, &inv.ExpiresAt, &inv.AcceptedAt, &inv.RevokedAt, &inv.CreatedAt)
+	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.ConstraintName == "idx_admin_invitations_one_pending" {
+			return Invitation{}, ErrInvitationExists
+		}
+		return Invitation{}, fmt.Errorf("admin: create invitation: %w", err)
+	}
+	return inv, nil
+}
+
+func (r *Repository) DeleteInvitation(ctx context.Context, invitationID string) error {
+	_, err := r.pool.Exec(ctx, `DELETE FROM admin_invitations WHERE id = $1 AND accepted_at IS NULL`, invitationID)
+	if err != nil {
+		return fmt.Errorf("admin: delete invitation: %w", err)
+	}
+	return nil
+}
+
+func (r *Repository) ListInvitations(ctx context.Context) ([]Invitation, error) {
+	rows, err := r.pool.Query(ctx, `SELECT id, email, roles, invited_by, expires_at, accepted_at, revoked_at, created_at FROM admin_invitations ORDER BY created_at DESC LIMIT 100`)
+	if err != nil {
+		return nil, fmt.Errorf("admin: list invitations: %w", err)
+	}
+	defer rows.Close()
+	out := []Invitation{}
+	for rows.Next() {
+		var inv Invitation
+		if err := rows.Scan(&inv.ID, &inv.Email, &inv.Roles, &inv.InvitedBy, &inv.ExpiresAt, &inv.AcceptedAt, &inv.RevokedAt, &inv.CreatedAt); err != nil {
+			return nil, fmt.Errorf("admin: scan invitation: %w", err)
+		}
+		out = append(out, inv)
+	}
+	return out, rows.Err()
+}
+
+func (r *Repository) AcceptInvitation(ctx context.Context, tokenHash, passwordHash string) (User, []string, error) {
+	tx, err := r.pool.Begin(ctx)
+	if err != nil {
+		return User{}, nil, fmt.Errorf("admin: begin invitation acceptance: %w", err)
+	}
+	defer tx.Rollback(ctx) //nolint:errcheck
+	var inv Invitation
+	err = tx.QueryRow(ctx, `SELECT id, email, roles, invited_by, expires_at, accepted_at, revoked_at, created_at FROM admin_invitations WHERE token_hash = $1 FOR UPDATE`, tokenHash).Scan(&inv.ID, &inv.Email, &inv.Roles, &inv.InvitedBy, &inv.ExpiresAt, &inv.AcceptedAt, &inv.RevokedAt, &inv.CreatedAt)
+	if err != nil || inv.AcceptedAt != nil || inv.RevokedAt != nil || !inv.ExpiresAt.After(time.Now()) {
+		return User{}, nil, ErrInvitationInvalid
+	}
+	var u User
+	err = tx.QueryRow(ctx, `INSERT INTO users (email, password_hash) VALUES ($1, $2) RETURNING id, email, phone_e164, status, last_login_at, created_at`, inv.Email, passwordHash).Scan(&u.ID, &u.Email, &u.PhoneE164, &u.Status, &u.LastLoginAt, &u.CreatedAt)
+	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.ConstraintName == "users_email_key" {
+			return User{}, nil, ErrEmailInUse
+		}
+		return User{}, nil, fmt.Errorf("admin: create invited user: %w", err)
+	}
+	if _, err := tx.Exec(ctx, `INSERT INTO user_roles (user_id, role_id) SELECT $1, id FROM roles WHERE code = ANY($2)`, u.ID, inv.Roles); err != nil {
+		return User{}, nil, fmt.Errorf("admin: assign invited roles: %w", err)
+	}
+	if _, err := tx.Exec(ctx, `UPDATE admin_invitations SET accepted_at = now() WHERE id = $1`, inv.ID); err != nil {
+		return User{}, nil, fmt.Errorf("admin: consume invitation: %w", err)
+	}
+	if err := tx.Commit(ctx); err != nil {
+		return User{}, nil, fmt.Errorf("admin: commit invitation acceptance: %w", err)
+	}
+	u.Roles = inv.Roles
+	return u, inv.Roles, nil
+}
 
 // ListUsers returns one page of users with their roles (offset pagination —
 // low-volume admin list, spec §14).

@@ -25,6 +25,9 @@ interface CertificationSummary {
 interface MeGuideResponse {
   profile?: GuideProfile;
   certification?: CertificationSummary;
+  outstanding_requirements?: string[];
+  languages?: unknown[];
+  specialties?: unknown[];
 }
 
 type LoadState = "loading" | "unauthenticated" | "error" | "ready";
@@ -55,8 +58,9 @@ export default function GuideDashboardPage() {
     try {
       const data = unwrap<MeGuideResponse>(await api<unknown>("/me/guide"), "guide");
       // Tolerate a bare profile object without the wrapper keys.
-      setProfile(data.profile ?? (data as unknown as GuideProfile));
-      setCertification(data.certification ?? null);
+      const nextProfile = data.profile ?? (data as unknown as GuideProfile);
+      setProfile({ ...nextProfile, languages: data.languages ?? nextProfile.languages, specialties: data.specialties ?? nextProfile.specialties });
+      setCertification(data.certification ? { ...data.certification, outstanding: data.outstanding_requirements ?? data.certification.outstanding } : null);
       setState("ready");
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {

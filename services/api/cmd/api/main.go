@@ -340,6 +340,7 @@ func buildHandler(cfg config.Config, pool *pgxpool.Pool, rdb *goredis.Client, lo
 	mux.Handle("POST /api/v1/auth/logout", http.HandlerFunc(authH.Logout))
 	mux.Handle("POST /api/v1/auth/password/forgot", ratelimit.Middleware(limiter, auth.ResetLimit)(http.HandlerFunc(authH.ForgotPassword)))
 	mux.Handle("POST /api/v1/auth/password/reset", ratelimit.Middleware(limiter, auth.ResetLimit)(http.HandlerFunc(authH.ResetPassword)))
+	mux.Handle("POST /api/v1/auth/invitations/accept", ratelimit.Middleware(limiter, auth.ResetLimit)(http.HandlerFunc(adminH.AcceptInvitation)))
 
 	// Self-service (auth required).
 	mux.Handle("GET /api/v1/me/tourist-profile", rbacMw.RequireAuth(http.HandlerFunc(touristsH.Get)))
@@ -415,6 +416,10 @@ func buildHandler(cfg config.Config, pool *pgxpool.Pool, rdb *goredis.Client, lo
 		rbacMw.RequireAuth(rbac.RequirePermission("users.read")(http.HandlerFunc(adminH.ListUsers))))
 	mux.Handle("PATCH /api/v1/admin/users/{id}/roles",
 		rbacMw.RequireAuth(rbac.RequirePermission("users.manage")(http.HandlerFunc(adminH.SetUserRoles))))
+	mux.Handle("GET /api/v1/admin/invitations",
+		rbacMw.RequireAuth(rbac.RequirePermission("users.read")(http.HandlerFunc(adminH.ListInvitations))))
+	mux.Handle("POST /api/v1/admin/invitations",
+		rbacMw.RequireAuth(rbac.RequirePermission("users.manage")(http.HandlerFunc(adminH.CreateInvitation))))
 	mux.Handle("GET /api/v1/admin/guides",
 		rbacMw.RequireAuth(rbac.RequirePermission("guides.read")(http.HandlerFunc(adminH.ListGuides))))
 	mux.Handle("GET /api/v1/admin/bookings",
@@ -755,6 +760,13 @@ paths:
       responses:
         "200": {description: Password updated.}
         "401": {description: Invalid or expired code.}
+  /auth/invitations/accept:
+    post:
+      operationId: acceptAdminInvitation
+      summary: Accept a single-use staff invitation and create the invited account; rate-limited
+      responses:
+        "201": {description: Staff account created with invited roles.}
+        "410": {description: Invitation invalid, expired, revoked or already used.}
 
   # --- Self-service ---------------------------------------------------------
   /me/tourist-profile:
@@ -1059,6 +1071,20 @@ paths:
         "200": {description: Roles updated.}
         "403": {description: Missing users.manage.}
         "404": {description: User not found.}
+  /admin/invitations:
+    get:
+      operationId: adminListInvitations
+      summary: List recent staff invitations and lifecycle status (permission users.read)
+      responses:
+        "200": {description: Invitation list.}
+        "403": {description: Missing users.read.}
+    post:
+      operationId: adminCreateInvitation
+      summary: Create an audited 72-hour single-use staff invitation (permission users.manage)
+      responses:
+        "201": {description: Invitation created with one-time acceptance token.}
+        "409": {description: Email registered or already pending.}
+        "403": {description: Missing users.manage.}
   /admin/guides:
     get:
       operationId: adminListGuides

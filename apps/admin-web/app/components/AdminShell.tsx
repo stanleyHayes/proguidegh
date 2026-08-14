@@ -76,7 +76,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
     if (!window.localStorage.getItem("proguidegh-admin-tour-complete")) setTourStep(0);
   }, [pathname]);
 
-  if (pathname.startsWith("/login")) return <main className="auth-stage" id="admin-content">{children}</main>;
+  if (pathname.startsWith("/login") || pathname.startsWith("/invite/")) return <main className="auth-stage" id="admin-content">{children}</main>;
 
   const tour = [
     ["Welcome to operations", "This command center keeps tours, safety, people and platform stewardship in one workspace."],

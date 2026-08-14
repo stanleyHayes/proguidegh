@@ -413,6 +413,69 @@ func TestRoleChangeWritesAuditRow(t *testing.T) {
 	if !bytes.Contains([]byte(before), []byte("tourist")) {
 		t.Fatalf("audit before_json missing old role: %s", before)
 	}
+
+	// A super admin cannot remove their own super_admin role and lock
+	// themselves out of access recovery.
+	adminID := env.grantRole(adminEmail, "super_admin")
+	selfReq, err := http.NewRequest(http.MethodPatch, env.server.URL+"/api/v1/admin/users/"+adminID+"/roles", bytes.NewReader([]byte(`{"roles":["administrator"]}`)))
+	if err != nil {
+		t.Fatalf("self-lockout request: %v", err)
+	}
+	selfReq.Header.Set("Content-Type", "application/json")
+	selfReq.Header.Set("Authorization", "Bearer "+adminAccess)
+	selfResp, err := env.server.Client().Do(selfReq)
+	if err != nil {
+		t.Fatalf("self-lockout request: %v", err)
+	}
+	selfResp.Body.Close() //nolint:errcheck
+	if selfResp.StatusCode != http.StatusBadRequest {
+		t.Fatalf("self-lockout: got %d, want 400", selfResp.StatusCode)
+	}
+}
+
+func TestAdminInvitationIsAuditedSingleUseAndAssignsRole(t *testing.T) {
+	env := newIntegrationEnv(t)
+	adminEmail := uniqueEmail(t)
+	env.registerAndLogin(adminEmail)
+	env.grantRole(adminEmail, "super_admin")
+	adminAccess, _ := env.login(adminEmail)["access_token"].(string)
+
+	inviteeEmail := uniqueEmail(t)
+	status, created := env.post("/api/v1/admin/invitations", map[string]any{
+		"email": inviteeEmail, "roles": []string{"operations_agent"},
+	}, bearer(adminAccess))
+	if status != http.StatusCreated {
+		t.Fatalf("create invitation: got %d: %v", status, created)
+	}
+	token, _ := created["accept_token"].(string)
+	if token == "" {
+		t.Fatalf("missing one-time token: %v", created)
+	}
+
+	status, accepted := env.post("/api/v1/auth/invitations/accept", map[string]any{
+		"token": token, "password": "new-admin-passw0rd",
+	}, nil)
+	if status != http.StatusCreated {
+		t.Fatalf("accept invitation: got %d: %v", status, accepted)
+	}
+	status, _ = env.post("/api/v1/auth/invitations/accept", map[string]any{
+		"token": token, "password": "new-admin-passw0rd",
+	}, nil)
+	if status != http.StatusGone {
+		t.Fatalf("replayed invitation: got %d, want 410", status)
+	}
+
+	status, login := env.post("/api/v1/auth/login", map[string]any{"email": inviteeEmail, "password": "new-admin-passw0rd"}, nil)
+	if status != http.StatusOK {
+		t.Fatalf("invited login: got %d: %v", status, login)
+	}
+	var roleCount, auditCount int
+	if err := env.pool.QueryRow(context.Background(), `SELECT count(*) FROM user_roles ur JOIN users u ON u.id=ur.user_id JOIN roles r ON r.id=ur.role_id WHERE u.email=$1 AND r.code='operations_agent'`, inviteeEmail).Scan(&roleCount); err != nil || roleCount != 1 {
+		t.Fatalf("invited role count=%d err=%v", roleCount, err)
+	}
+	if err := env.pool.QueryRow(context.Background(), `SELECT count(*) FROM audit_logs WHERE action='admin.invitations.create' AND after_json->>'email'=$1`, inviteeEmail).Scan(&auditCount); err != nil || auditCount != 1 {
+		t.Fatalf("invitation audit count=%d err=%v", auditCount, err)
+	}
 }
 
 func TestOTPAttemptLimiting(t *testing.T) {

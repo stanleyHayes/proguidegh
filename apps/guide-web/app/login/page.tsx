@@ -19,6 +19,7 @@ export default function LoginPage() {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [mfaChallenge, setMfaChallenge] = useState<string | null>(null);
+  const [mfaCode, setMfaCode] = useState("");
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -50,6 +51,8 @@ export default function LoginPage() {
     }
   }
 
+  async function submitMFA(event: React.FormEvent<HTMLFormElement>) { event.preventDefault(); setPending(true); setError(null); try { await api("/auth/login/mfa", { method: "POST", body: { challenge: mfaChallenge, code: mfaCode }, skipRefreshRetry: true }); router.push("/guide") } catch (err) { setError(errorMessage(err, "That verification code was not accepted.")) } finally { setPending(false) } }
+
   return (
     <AuthShell eyebrow="Partner access" title="Return to your guide workspace."><div className="stack auth-form" aria-busy={pending}>
       <section aria-labelledby="login-heading">
@@ -66,23 +69,14 @@ export default function LoginPage() {
       ) : null}
 
       {mfaChallenge !== null ? (
-        <Alert tone="info" title="Multi-factor authentication required">
-          <p>
-            This account requires a verification code to finish signing in.
-            Code entry for MFA challenges is enabled in a later phase — please
-            contact support if you cannot sign in.
-          </p>
-          {mfaChallenge ? (
-            <p className="muted">Challenge reference: {mfaChallenge}</p>
-          ) : null}
-        </Alert>
+        <form className="stack" onSubmit={submitMFA}><Alert tone="info" title="Verification required"><p>Enter the six-digit code from your authenticator app or one unused recovery code.</p></Alert><Input label="Verification code" name="code" inputMode="numeric" autoComplete="one-time-code" required value={mfaCode} onChange={(event) => setMfaCode(event.target.value)} disabled={pending} placeholder="000 000" /><Button type="submit" disabled={pending}>{pending ? "Verifying…" : "Verify and continue"}</Button><button className="auth-text-action" type="button" onClick={() => { setMfaChallenge(null); setMfaCode("") }}>Use another account</button></form>
       ) : (
         <form className="stack" onSubmit={onSubmit}>
           <Input
-            label="Email or phone number"
+            label="Email address"
             name="identifier"
-            type="text"
-            autoComplete="username"
+            type="email"
+            autoComplete="email"
             required
             value={identifier}
             onChange={(e) => setIdentifier(e.target.value)}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   Alert,
@@ -12,38 +12,14 @@ import {
 } from "@proguidegh/ui";
 import { api, ApiError, errorMessage } from "../../lib/api";
 
-// Placeholder option lists until the catalog/regions API lands (Phase 2).
-const REGION_OPTIONS = [
-  { value: "", label: "Select your primary region" },
-  { value: "greater-accra", label: "Greater Accra" },
-  { value: "ashanti", label: "Ashanti" },
-  { value: "central", label: "Central" },
-  { value: "eastern", label: "Eastern" },
-  { value: "western", label: "Western" },
-  { value: "western-north", label: "Western North" },
-  { value: "volta", label: "Volta" },
-  { value: "oti", label: "Oti" },
-  { value: "bono", label: "Bono" },
-  { value: "bono-east", label: "Bono East" },
-  { value: "ahafo", label: "Ahafo" },
-  { value: "northern", label: "Northern" },
-  { value: "savannah", label: "Savannah" },
-  { value: "north-east", label: "North East" },
-  { value: "upper-east", label: "Upper East" },
-  { value: "upper-west", label: "Upper West" },
-];
-
 const LANGUAGE_OPTIONS = [
-  "English",
-  "Twi",
-  "Fante",
-  "Ga",
-  "Ewe",
-  "Dagbani",
-  "Hausa",
-  "Nzema",
-  "French",
+  { code: "en", label: "English" }, { code: "tw", label: "Twi" },
+  { code: "ak", label: "Akan" }, { code: "ga", label: "Ga" },
+  { code: "ee", label: "Ewe" }, { code: "dag", label: "Dagbani" },
+  { code: "dga", label: "Dagaare" }, { code: "gur", label: "Frafra" },
+  { code: "ha", label: "Hausa" }, { code: "fr", label: "French" },
 ];
+interface Region { id: string; name: string }
 
 export default function GuideApplyPage() {
   const [publicName, setPublicName] = useState("");
@@ -55,6 +31,10 @@ export default function GuideApplyPage() {
   const [unauthenticated, setUnauthenticated] = useState(false);
   const [languageError, setLanguageError] = useState<string | undefined>();
   const [done, setDone] = useState(false);
+  const [regions, setRegions] = useState<Region[]>([]);
+  const [catalogPending, setCatalogPending] = useState(true);
+
+  useEffect(() => { api<{ regions?: Region[] }>("/regions").then((data) => setRegions(data.regions ?? [])).catch(() => setError("Regions could not be loaded. Refresh the page before submitting." )).finally(() => setCatalogPending(false)) }, []);
 
   function toggleLanguage(language: string) {
     setLanguages((prev) =>
@@ -79,10 +59,10 @@ export default function GuideApplyPage() {
         body: {
           public_name: publicName,
           bio,
-          region,
-          languages,
+          region_id: region,
         },
       });
+      await api("/me/guide/profile", { method: "PATCH", body: { languages: languages.map((code) => ({ code, proficiency: "fluent" })) } });
       setDone(true);
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
@@ -147,6 +127,7 @@ export default function GuideApplyPage() {
 
   return (
     <div className="stack" aria-busy={pending}>
+      <nav className="guide-onboarding-steps" aria-label="Guide onboarding progress"><span className="is-complete"><b>1</b> Account</span><i /><span className="is-current" aria-current="step"><b>2</b> Application</span><i /><span><b>3</b> Verification</span></nav>
       <section aria-labelledby="apply-heading">
         <h1 id="apply-heading">Guide application</h1>
         <p className="muted">
@@ -184,39 +165,36 @@ export default function GuideApplyPage() {
         <Select
           label="Primary region"
           name="region"
-          hint="Region options are placeholders pending the catalog service."
+          hint="Choose the region where you guide most often."
           required
           value={region}
           onChange={(e) => setRegion(e.target.value)}
-          disabled={pending}
+          disabled={pending || catalogPending}
         >
-          {REGION_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
+          <option value="">{catalogPending ? "Loading Ghana’s regions…" : "Select your primary region"}</option>
+          {regions.map((opt) => <option key={opt.id} value={opt.id}>{opt.name}</option>)}
         </Select>
         <Fieldset
           legend="Languages you guide in"
           error={languageError}
           hint="Select all that apply."
         >
-          {LANGUAGE_OPTIONS.map((language) => (
-            <label key={language} className="checkbox-row">
+          <div className="language-choice-grid">{LANGUAGE_OPTIONS.map((language) => (
+            <label key={language.code} className="checkbox-row">
               <input
                 type="checkbox"
                 name="languages"
-                value={language}
-                checked={languages.includes(language)}
-                onChange={() => toggleLanguage(language)}
+                value={language.code}
+                checked={languages.includes(language.code)}
+                onChange={() => toggleLanguage(language.code)}
                 disabled={pending}
               />
-              {language}
+              <span>{language.label}</span>
             </label>
-          ))}
+          ))}</div>
         </Fieldset>
         <div>
-          <Button type="submit" disabled={pending}>
+          <Button type="submit" disabled={pending || catalogPending || regions.length === 0}>
             {pending ? "Submitting…" : "Submit application"}
           </Button>
         </div>

@@ -25,9 +25,7 @@ export default function RegisterPage() {
     setFieldError(undefined);
     setPending(true);
     try {
-      const body = identifier.includes("@")
-        ? { email: identifier, password, intent: "guide" }
-        : { phone: identifier, password, intent: "guide" };
+      const body = { email: identifier, password, intent: "guide" };
       await api("/auth/register", {
         method: "POST",
         body,
@@ -72,8 +70,8 @@ export default function RegisterPage() {
       <section aria-labelledby="register-heading">
         <h1 id="register-heading">Register as a guide</h1>
         <p className="muted">
-          Create your account with an email address or phone number. You will
-          complete your application after signing in.
+          Create your account with an email address. You will complete your
+          professional application after signing in.
         </p>
       </section>
 
@@ -85,11 +83,11 @@ export default function RegisterPage() {
 
       <form className="stack" onSubmit={onSubmit}>
         <Input
-          label="Email or phone number"
+          label="Email address"
           name="identifier"
-          type="text"
-          autoComplete="username"
-          hint="Use an email address or a phone number with country code, e.g. +233…"
+          type="email"
+          autoComplete="email"
+          hint="We use this for certification updates and account recovery."
           required
           value={identifier}
           onChange={(e) => setIdentifier(e.target.value)}

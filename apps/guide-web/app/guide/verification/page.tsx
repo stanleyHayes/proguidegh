@@ -50,8 +50,9 @@ interface CertificationDetail {
 const DOCUMENT_TYPES = [
   { value: "national_id", label: "National ID / Ghana Card" },
   { value: "passport", label: "Passport" },
-  { value: "certificate", label: "Tourism certificate" },
-  { value: "profile_photo", label: "Profile photo" },
+  { value: "certification", label: "Tourism certificate" },
+  { value: "background_check", label: "Background check" },
+  { value: "insurance", label: "Insurance evidence" },
   { value: "other", label: "Other supporting document" },
 ];
 
@@ -196,10 +197,8 @@ export default function GuideVerificationPage() {
         await api("/guides/documents", {
           method: "POST",
           body: {
-            document_type: documentType,
-            file_name: selectedFile.name,
+            type: documentType,
             content_type: selectedFile.type || "application/octet-stream",
-            size_bytes: selectedFile.size,
           },
         }),
         "document",

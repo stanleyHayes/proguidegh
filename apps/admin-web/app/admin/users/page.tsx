@@ -1,221 +1,51 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Alert, Badge, Button, Select } from "@proguidegh/ui";
+import { useCallback, useEffect, useState } from "react";
+import { Alert, Badge, Button, EmptyState, Input } from "@proguidegh/ui";
 import { api, ApiError, errorMessage } from "../../lib/api";
 import { Unauthorized } from "../../components/Unauthorized";
 
-/** Assumed shape of GET /admin/users entries (spec §13.6). */
-interface AdminUser {
-  id: string;
-  email?: string;
-  phone?: string;
-  roles?: string[];
-  status?: string;
-  created_at?: string;
-}
-
-// Placeholder role list until GET /admin/roles exists (spec §13.6).
+interface AdminUser { id: string; email?: string; phone?: string; roles?: string[]; status?: string; created_at?: string }
+interface Invitation { id: string; email: string; roles: string[]; expires_at: string; accepted_at?: string | null; revoked_at?: string | null }
 const ROLE_OPTIONS = [
-  "tourist",
-  "guide",
-  "operations",
-  "verifier",
-  "finance",
-  "content_admin",
-  "admin",
-  "super_admin",
-];
-
+  { value: "operations_agent", label: "Operations agent", detail: "Tours, dispatch and safety" },
+  { value: "verifier", label: "Verifier", detail: "Guide certification reviews" },
+  { value: "finance_officer", label: "Finance officer", detail: "Payments, payouts and ledger" },
+  { value: "content_admin", label: "Content admin", detail: "Training and content" },
+  { value: "administrator", label: "Administrator", detail: "Day-to-day platform control" },
+  { value: "super_admin", label: "Super admin", detail: "Full access; MFA required" },
+] as const;
 type LoadState = "loading" | "unauthorized" | "forbidden" | "error" | "ready";
 
-function parseUsers(data: unknown): AdminUser[] {
-  if (Array.isArray(data)) return data as AdminUser[];
-  if (data !== null && typeof data === "object" && "users" in data) {
-    const users = (data as { users: unknown }).users;
-    if (Array.isArray(users)) return users as AdminUser[];
-  }
-  return [];
-}
-
-function formatDate(value?: string): string {
-  if (!value) return "—";
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString();
-}
+function list<T>(data: unknown, key: string): T[] { const value = data && typeof data === "object" ? (data as Record<string, unknown>)[key] : undefined; return Array.isArray(value) ? value as T[] : [] }
+function formatDate(value?: string) { if (!value) return "—"; const date = new Date(value); return Number.isNaN(date.getTime()) ? value : new Intl.DateTimeFormat("en-GH", { dateStyle: "medium" }).format(date) }
+function statusOf(invite: Invitation) { if (invite.accepted_at) return "Accepted"; if (invite.revoked_at) return "Revoked"; return new Date(invite.expires_at) <= new Date() ? "Expired" : "Pending" }
 
 export default function AdminUsersPage() {
   const [state, setState] = useState<LoadState>("loading");
-  const [loadError, setLoadError] = useState<string | null>(null);
-  const [users, setUsers] = useState<AdminUser[]>([]);
-  const [savingId, setSavingId] = useState<string | null>(null);
-  const [actionError, setActionError] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
+  const [users, setUsers] = useState<AdminUser[]>([]); const [invitations, setInvitations] = useState<Invitation[]>([]);
+  const [loadError, setLoadError] = useState<string | null>(null); const [actionError, setActionError] = useState<string | null>(null); const [notice, setNotice] = useState<string | null>(null);
+  const [savingId, setSavingId] = useState<string | null>(null); const [roleChange, setRoleChange] = useState<{ user: AdminUser; roles: string[] } | null>(null);
+  const [inviteOpen, setInviteOpen] = useState(false); const [inviteEmail, setInviteEmail] = useState(""); const [inviteRoles, setInviteRoles] = useState<string[]>([]); const [inviting, setInviting] = useState(false); const [inviteLink, setInviteLink] = useState<string | null>(null);
 
-  async function load() {
-    setState("loading");
-    setLoadError(null);
-    try {
-      const data = await api<unknown>("/admin/users");
-      setUsers(parseUsers(data));
-      setState("ready");
-    } catch (err) {
-      if (err instanceof ApiError && err.status === 401) {
-        setState("unauthorized");
-      } else if (err instanceof ApiError && err.status === 403) {
-        setState("forbidden");
-      } else {
-        setLoadError(errorMessage(err, "Could not load users. Please retry."));
-        setState("error");
-      }
-    }
-  }
+  const load = useCallback(async () => { setState("loading"); setLoadError(null); try { const [usersData, invitesData] = await Promise.all([api<unknown>("/admin/users"), api<unknown>("/admin/invitations")]); setUsers(list<AdminUser>(usersData, "users")); setInvitations(list<Invitation>(invitesData, "invitations")); setState("ready") } catch (err) { if (err instanceof ApiError && err.status === 401) setState("unauthorized"); else if (err instanceof ApiError && err.status === 403) setState("forbidden"); else { setLoadError(errorMessage(err, "Could not load the access directory.")); setState("error") } } }, []);
+  useEffect(() => { void load() }, [load]);
 
-  useEffect(() => {
-    void load();
-  }, []);
+  async function confirmRoleChange() { if (!roleChange) return; const { user, roles } = roleChange; const label = user.email ?? user.phone ?? user.id; if (!roles.length) { setActionError("Every account must retain at least one role."); return } setSavingId(user.id); setActionError(null); setNotice(null); try { await api(`/admin/users/${user.id}/roles`, { method: "PATCH", body: { roles } }); setUsers((all) => all.map((item) => item.id === user.id ? { ...item, roles } : item)); setNotice(`Access updated for ${label}.`); setRoleChange(null) } catch (err) { setActionError(errorMessage(err, `Could not update ${label}.`)) } finally { setSavingId(null) } }
+  function toggleChangedRole(role: string) { setRoleChange((current) => current ? { ...current, roles: current.roles.includes(role) ? current.roles.filter((item) => item !== role) : [...current.roles, role] } : current) }
+  function toggleInviteRole(role: string) { setInviteRoles((current) => current.includes(role) ? current.filter((item) => item !== role) : [...current, role]) }
+  async function createInvitation(event: React.FormEvent<HTMLFormElement>) { event.preventDefault(); setActionError(null); setNotice(null); if (!inviteRoles.length) { setActionError("Choose at least one staff role for this invitation."); return } setInviting(true); try { const result = await api<{ invitation: Invitation; accept_token: string }>("/admin/invitations", { method: "POST", body: { email: inviteEmail, roles: inviteRoles } }); setInvitations((current) => [result.invitation, ...current]); setInviteLink(`${window.location.origin}/invite/${encodeURIComponent(result.accept_token)}`); setInviteEmail(""); setInviteRoles([]); setInviteOpen(false); setNotice("Invitation created. Copy the secure link and send it to the new administrator.") } catch (err) { setActionError(errorMessage(err, "Could not create the invitation.")) } finally { setInviting(false) } }
 
-  async function changeRole(user: AdminUser, role: string) {
-    const label = user.email ?? user.phone ?? user.id;
-    // Confirmation dialog for privileged actions (spec §18.4).
-    if (!window.confirm(`Set ${label}'s role to "${role}"?`)) return;
-    setSavingId(user.id);
-    setActionError(null);
-    setNotice(null);
-    try {
-      await api(`/admin/users/${user.id}/roles`, {
-        method: "PATCH",
-        body: { roles: [role] },
-      });
-      setUsers((prev) =>
-        prev.map((u) => (u.id === user.id ? { ...u, roles: [role] } : u)),
-      );
-      setNotice(`Updated ${label} to role "${role}".`);
-    } catch (err) {
-      if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
-        setState(err.status === 401 ? "unauthorized" : "forbidden");
-        return;
-      }
-      setActionError(errorMessage(err, `Could not update ${label}.`));
-    } finally {
-      setSavingId(null);
-    }
-  }
-
-  if (state === "unauthorized" || state === "forbidden") {
-    return (
-      <div className="stack">
-        <h1>Users & roles</h1>
-        <Unauthorized forbidden={state === "forbidden"} />
-      </div>
-    );
-  }
-
-  return (
-    <div className="stack">
-      <section aria-labelledby="users-heading">
-        <h1 id="users-heading">Users & roles</h1>
-        <p className="muted">
-          Manage platform accounts and their roles. Every change is audited by
-          the backend.
-        </p>
-      </section>
-
-      {state === "error" ? (
-        <>
-          <Alert tone="error" title="Something went wrong">
-            <p>{loadError}</p>
-          </Alert>
-          <div>
-            <Button type="button" onClick={() => void load()}>
-              Retry
-            </Button>
-          </div>
-        </>
-      ) : null}
-
-      {actionError ? (
-        <Alert tone="error" title="Role update failed">
-          <p>{actionError}</p>
-        </Alert>
-      ) : null}
-
-      {notice ? (
-        <Alert tone="success" title="Saved">
-          <p>{notice}</p>
-        </Alert>
-      ) : null}
-
-      {state === "loading" ? (
-        <div className="stack" aria-busy="true" aria-label="Loading users">
-          {Array.from({ length: 5 }, (_, i) => (
-            <div key={i} className="gg-skeleton" style={{ height: "3rem" }} />
-          ))}
-        </div>
-      ) : null}
-
-      {state === "ready" && users.length === 0 ? (
-        <Alert tone="info" title="No users found">
-          <p>The directory is empty or the API returned no accounts.</p>
-        </Alert>
-      ) : null}
-
-      {state === "ready" && users.length > 0 ? (
-        <div className="gg-table-scroll">
-          <table className="gg-table">
-            <thead>
-              <tr>
-                <th scope="col">Email</th>
-                <th scope="col">Roles</th>
-                <th scope="col">Status</th>
-                <th scope="col">Created</th>
-                <th scope="col">Change role</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((user) => (
-                <tr key={user.id}>
-                  <td>{user.email ?? user.phone ?? "—"}</td>
-                  <td>
-                    {(user.roles ?? []).length === 0
-                      ? "—"
-                      : (user.roles ?? []).map((role) => (
-                          <Badge key={role} tone="neutral">
-                            {role}
-                          </Badge>
-                        ))}
-                  </td>
-                  <td>
-                    <Badge
-                      tone={user.status === "active" ? "success" : "neutral"}
-                    >
-                      {user.status ?? "unknown"}
-                    </Badge>
-                  </td>
-                  <td>{formatDate(user.created_at)}</td>
-                  <td>
-                    <Select
-                      label={`Change role for ${user.email ?? user.phone ?? user.id}`}
-                      value={user.roles?.[0] ?? ""}
-                      disabled={savingId === user.id}
-                      onChange={(e) => void changeRole(user, e.target.value)}
-                    >
-                      <option value="" disabled>
-                        Select role
-                      </option>
-                      {ROLE_OPTIONS.map((role) => (
-                        <option key={role} value={role}>
-                          {role}
-                        </option>
-                      ))}
-                    </Select>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ) : null}
-    </div>
-  );
+  if (state === "unauthorized" || state === "forbidden") return <div className="stack"><h1>Users & access</h1><Unauthorized forbidden={state === "forbidden"} /></div>;
+  return <div className="stack access-page">
+    <section className="access-hero" aria-labelledby="users-heading"><div><p className="eyebrow">Identity & access</p><h1 id="users-heading">Build the right team, safely.</h1><p>Invite staff through expiring links, review access, and keep every role change auditable.</p></div><Button type="button" onClick={() => setInviteOpen(true)}>Invite administrator</Button></section>
+    {state === "error" && <><Alert tone="error" title="Directory unavailable"><p>{loadError}</p></Alert><Button type="button" onClick={() => void load()}>Retry</Button></>}
+    {actionError && <Alert tone="error" title="Action needed"><p>{actionError}</p></Alert>}{notice && <Alert tone="success" title="Access updated"><p>{notice}</p></Alert>}
+    {inviteLink && <section className="invite-link-card" aria-labelledby="invite-ready"><div><p className="eyebrow">One-time setup link</p><h2 id="invite-ready">Invitation ready to share</h2><p>This link expires in 72 hours and can only be used once.</p></div><code>{inviteLink}</code><Button type="button" variant="secondary" onClick={() => void navigator.clipboard.writeText(inviteLink)}>Copy link</Button></section>}
+    {state === "loading" && <div className="access-skeleton" aria-busy="true" aria-label="Loading access directory">{Array.from({ length: 4 }, (_, i) => <div key={i} className="gg-skeleton" />)}</div>}
+    {state === "ready" && <><section className="access-section"><header><div><p className="eyebrow">Active accounts</p><h2>Platform users</h2></div><span>{users.length} accounts</span></header>{users.length === 0 ? <EmptyState eyebrow="Directory clear" title="No accounts yet" description="Invited administrators and registered users will appear here." /> : <div className="gg-table-scroll"><table className="gg-table"><thead><tr><th scope="col">Account</th><th scope="col">Access</th><th scope="col">Status</th><th scope="col">Joined</th><th scope="col">Role action</th></tr></thead><tbody>{users.map((user) => <tr key={user.id}><td><strong>{user.email ?? user.phone ?? "Unknown account"}</strong></td><td className="access-role-list">{user.roles?.map((role) => <Badge key={role} tone="neutral">{role.replaceAll("_", " ")}</Badge>)}</td><td><Badge tone={user.status === "active" ? "success" : "warning"}>{user.status ?? "unknown"}</Badge></td><td>{formatDate(user.created_at)}</td><td><Button type="button" variant="secondary" disabled={savingId === user.id} onClick={() => setRoleChange({ user, roles: [...(user.roles ?? [])] })}>{savingId === user.id ? "Saving…" : "Review access"}</Button></td></tr>)}</tbody></table></div>}</section>
+      <section className="access-section"><header><div><p className="eyebrow">Invitation trail</p><h2>Pending & completed invites</h2></div><span>{invitations.length} invitations</span></header>{invitations.length === 0 ? <EmptyState eyebrow="Ready when you are" title="No invitations sent" description="Invite an operations, verification, finance, content, or administrative teammate." action={<Button type="button" onClick={() => setInviteOpen(true)}>Create first invitation</Button>} /> : <div className="invite-list">{invitations.map((invite) => <article key={invite.id}><div><strong>{invite.email}</strong><span>{invite.roles.map((role) => role.replaceAll("_", " ")).join(" · ")}</span></div><Badge tone={statusOf(invite) === "Accepted" ? "success" : statusOf(invite) === "Pending" ? "warning" : "neutral"}>{statusOf(invite)}</Badge><small>Expires {formatDate(invite.expires_at)}</small></article>)}</div>}</section></>}
+    {inviteOpen && <div className="access-dialog" role="dialog" aria-modal="true" aria-labelledby="invite-title"><button className="access-dialog__scrim" aria-label="Close invitation form" onClick={() => setInviteOpen(false)} /><form onSubmit={createInvitation}><header><div><p className="eyebrow">Secure staff onboarding</p><h2 id="invite-title">Invite an administrator</h2></div><button type="button" aria-label="Close" onClick={() => setInviteOpen(false)}>×</button></header><p>The recipient creates their own password. The link expires after 72 hours.</p><Input label="Work email" name="email" type="email" autoComplete="email" required value={inviteEmail} onChange={(event) => setInviteEmail(event.target.value)} disabled={inviting} /><fieldset><legend>Choose access</legend><div className="invite-role-grid">{ROLE_OPTIONS.map((role) => <label key={role.value}><input type="checkbox" checked={inviteRoles.includes(role.value)} onChange={() => toggleInviteRole(role.value)} disabled={inviting} /><span><strong>{role.label}</strong><small>{role.detail}</small></span></label>)}</div></fieldset><footer><Button type="button" variant="secondary" onClick={() => setInviteOpen(false)}>Cancel</Button><Button type="submit" disabled={inviting}>{inviting ? "Creating invitation…" : "Create secure invitation"}</Button></footer></form></div>}
+    {roleChange && <div className="access-dialog" role="dialog" aria-modal="true" aria-labelledby="role-title"><button className="access-dialog__scrim" aria-label="Cancel role change" onClick={() => setRoleChange(null)} /><section><p className="eyebrow">Review account access</p><h2 id="role-title">Roles for {roleChange.user.email}</h2><p>Select the complete access set this account should retain. Saving replaces the current set and is recorded in the audit trail.</p><div className="invite-role-grid">{ROLE_OPTIONS.map((role) => <label key={role.value}><input type="checkbox" checked={roleChange.roles.includes(role.value)} onChange={() => toggleChangedRole(role.value)} /><span><strong>{role.label}</strong><small>{role.detail}</small></span></label>)}</div><footer><Button type="button" variant="secondary" onClick={() => setRoleChange(null)}>Cancel</Button><Button type="button" onClick={() => void confirmRoleChange()} disabled={!roleChange.roles.length}>Save access</Button></footer></section></div>}
+  </div>;
 }

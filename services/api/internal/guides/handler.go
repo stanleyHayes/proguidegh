@@ -199,12 +199,24 @@ func (h *Handler) Me(w http.ResponseWriter, r *http.Request) {
 		httpx.WriteError(w, r, http.StatusInternalServerError, "INTERNAL", "could not load documents", nil)
 		return
 	}
+	languages, err := h.repo.ListLanguages(r.Context(), id.UserID)
+	if err != nil {
+		httpx.WriteError(w, r, http.StatusInternalServerError, "INTERNAL", "could not load languages", nil)
+		return
+	}
+	specialties, err := h.repo.ListSpecialties(r.Context(), id.UserID)
+	if err != nil {
+		httpx.WriteError(w, r, http.StatusInternalServerError, "INTERNAL", "could not load specialties", nil)
+		return
+	}
 
 	httpx.WriteJSON(w, http.StatusOK, map[string]any{
 		"profile":                  p,
 		"certification":            certCase,
 		"outstanding_requirements": outstanding,
 		"documents":                docs,
+		"languages":                languages,
+		"specialties":              specialties,
 	})
 }
 
