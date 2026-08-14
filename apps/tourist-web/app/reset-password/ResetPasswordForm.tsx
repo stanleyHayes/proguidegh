@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Alert, Button, Input } from "@proguidegh/ui";
 import { api, errorMessage } from "../lib/api";
+import { AuthShell } from "../components/AuthShell";
 
 export function ResetPasswordForm() {
   const searchParams = useSearchParams();
@@ -47,7 +48,7 @@ export function ResetPasswordForm() {
 
   if (!token) {
     return (
-      <div className="stack">
+      <AuthShell eyebrow="Invalid link" title="Let us get you a fresh reset link."><div className="stack auth-form">
         <h1>Reset your password</h1>
         <Alert tone="error" title="Invalid reset link">
           <p>
@@ -60,13 +61,13 @@ export function ResetPasswordForm() {
             Request a new link
           </Link>
         </p>
-      </div>
+      </div></AuthShell>
     );
   }
 
   if (done) {
     return (
-      <div className="stack">
+      <AuthShell eyebrow="Password updated" title="Your account is secure again."><div className="stack auth-form">
         <h1>Password updated</h1>
         <Alert tone="success" title="You can sign in again">
           <p>Your password has been changed successfully.</p>
@@ -76,12 +77,12 @@ export function ResetPasswordForm() {
             Sign in
           </Link>
         </p>
-      </div>
+      </div></AuthShell>
     );
   }
 
   return (
-    <div className="stack" aria-busy={pending}>
+    <AuthShell eyebrow="Secure your account" title="Choose a password only you know."><div className="stack auth-form" aria-busy={pending}>
       <section aria-labelledby="reset-heading">
         <h1 id="reset-heading">Choose a new password</h1>
       </section>
@@ -123,6 +124,6 @@ export function ResetPasswordForm() {
           </Button>
         </div>
       </form>
-    </div>
+    </div></AuthShell>
   );
 }

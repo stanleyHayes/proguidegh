@@ -7,6 +7,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { APP_URL, type MarketingContent } from "../lib/content";
 import { Logo } from "./logo";
+import { ActiveLink } from "./active-link";
 
 export function Rule({ onField = false }: { onField?: boolean }) {
   return <hr aria-hidden className={onField ? "rule rule--onField" : "rule"} />;
@@ -23,10 +24,10 @@ export function Nav() {
         {/* Links collapse on small screens; the primary action never does —
             most of this audience arrives on a phone. */}
         <div className="nav__links">
-          <Link href="/destinations">Destinations</Link>
-          <Link href="/safety">Safety</Link>
-          <Link href="/pricing">Pricing</Link>
-          <Link href="/become-a-guide">Become a guide</Link>
+          <ActiveLink href="/destinations">Destinations</ActiveLink>
+          <ActiveLink href="/safety">Safety</ActiveLink>
+          <ActiveLink href="/pricing">Pricing</ActiveLink>
+          <ActiveLink href="/become-a-guide">Become a guide</ActiveLink>
         </div>
         <div className="nav__actions">
           <a className="nav__signin" href={`${APP_URL}/login`}>Sign in</a>
@@ -60,16 +61,16 @@ export function Footer({ content }: { content: MarketingContent }) {
                 <a href={`${APP_URL}/search`}>Find a guide</a>
               </li>
               <li>
-                <Link href="/destinations">Destinations</Link>
+                <ActiveLink href="/destinations">Destinations</ActiveLink>
               </li>
               <li>
-                <Link href="/safety">Safety</Link>
+                <ActiveLink href="/safety">Safety</ActiveLink>
               </li>
               <li>
-                <Link href="/pricing">Pricing</Link>
+                <ActiveLink href="/pricing">Pricing</ActiveLink>
               </li>
               <li>
-                <Link href="/become-a-guide">Become a guide</Link>
+                <ActiveLink href="/become-a-guide">Become a guide</ActiveLink>
               </li>
             </ul>
           </div>
@@ -77,19 +78,19 @@ export function Footer({ content }: { content: MarketingContent }) {
             <h4>Support & policy</h4>
             <ul>
               <li>
-                <Link href="/about">About</Link>
+                <ActiveLink href="/about">About</ActiveLink>
               </li>
               <li>
-                <Link href="/contact">Contact</Link>
+                <ActiveLink href="/contact">Contact</ActiveLink>
               </li>
               <li>
-                <Link href="/faq">Common questions</Link>
+                <ActiveLink href="/faq">Common questions</ActiveLink>
               </li>
               <li>
-                <Link href="/legal/terms">Terms of service</Link>
+                <ActiveLink href="/legal/terms">Terms of service</ActiveLink>
               </li>
               <li>
-                <Link href="/legal/privacy">Privacy policy</Link>
+                <ActiveLink href="/legal/privacy">Privacy policy</ActiveLink>
               </li>
               <li>
                 <a href={`mailto:${content.contact.supportEmail}`}>Contact support</a>
@@ -98,7 +99,7 @@ export function Footer({ content }: { content: MarketingContent }) {
           </div>
           <div>
             <h4>For guides</h4>
-            <ul><li><Link href="/become-a-guide">Become certified</Link></li><li><a href={`${APP_URL}/login`}>Guide sign in</a></li><li><Link href="/contact">Partner with us</Link></li></ul>
+            <ul><li><ActiveLink href="/become-a-guide">Become certified</ActiveLink></li><li><a href={`${APP_URL}/login`}>Guide sign in</a></li><li><ActiveLink href="/contact">Partner with us</ActiveLink></li></ul>
           </div>
         </div>
 

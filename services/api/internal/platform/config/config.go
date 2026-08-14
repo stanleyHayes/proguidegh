@@ -71,12 +71,17 @@ type Config struct {
 // Load reads configuration from the environment, applying local defaults.
 func Load() Config {
 	return Config{
-		AppEnv:                get("APP_ENV", "local"),
-		DatabaseURL:           get("DATABASE_URL", "postgres://proguidegh:proguidegh@localhost:5432/proguidegh?sslmode=disable"),
-		RedisURL:              get("REDIS_URL", "redis://localhost:6379"),
-		JWTOrSessionSecret:    get("JWT_OR_SESSION_SECRET", ""),
-		APIPort:               getInt("API_PORT", 8080),
-		WorkerPort:            getInt("WORKER_PORT", 8081),
+		AppEnv:             get("APP_ENV", "local"),
+		DatabaseURL:        get("DATABASE_URL", "postgres://proguidegh:proguidegh@localhost:5432/proguidegh?sslmode=disable"),
+		RedisURL:           get("REDIS_URL", "redis://localhost:6379"),
+		JWTOrSessionSecret: get("JWT_OR_SESSION_SECRET", ""),
+		// Render injects PORT (default 10000) and health-checks that port; it
+		// does not know about API_PORT. Precedence is explicit override, then
+		// the platform-injected PORT, then the local default — so a blueprint
+		// deploy binds correctly with no extra configuration, and local dev is
+		// unchanged.
+		APIPort:               getInt("API_PORT", getInt("PORT", 8080)),
+		WorkerPort:            getInt("WORKER_PORT", getInt("PORT", 8081)),
 		WorkerTickInterval:    getDuration("WORKER_TICK_INTERVAL", 10*time.Second),
 		PaymentProvider:       get("PAYMENT_PROVIDER", "paystack"),
 		PaystackSecretKey:     get("PAYSTACK_SECRET_KEY", ""),

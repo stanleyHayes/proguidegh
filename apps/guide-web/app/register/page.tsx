@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Alert, Button, Input } from "@proguidegh/ui";
 import { api, errorMessage } from "../lib/api";
+import { AuthShell } from "../components/AuthShell";
 
 export default function RegisterPage() {
   const [identifier, setIdentifier] = useState("");
@@ -47,7 +48,7 @@ export default function RegisterPage() {
 
   if (done) {
     return (
-      <div className="stack">
+      <AuthShell eyebrow="Welcome aboard" title="Your professional guide journey starts here."><div className="stack auth-form">
         <section aria-labelledby="registered-heading">
           <h1 id="registered-heading">Account created</h1>
         </section>
@@ -62,12 +63,12 @@ export default function RegisterPage() {
             Continue to sign in
           </Link>
         </p>
-      </div>
+      </div></AuthShell>
     );
   }
 
   return (
-    <div className="stack" aria-busy={pending}>
+    <AuthShell eyebrow="Become a partner" title="Turn local knowledge into trusted work."><div className="stack auth-form" aria-busy={pending}>
       <section aria-labelledby="register-heading">
         <h1 id="register-heading">Register as a guide</h1>
         <p className="muted">
@@ -128,6 +129,6 @@ export default function RegisterPage() {
       <p className="muted">
         Already registered? <Link href="/login">Sign in</Link>
       </p>
-    </div>
+    </div></AuthShell>
   );
 }

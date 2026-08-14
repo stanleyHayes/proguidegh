@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Alert, Button, Input } from "@proguidegh/ui";
 import { api, errorMessage } from "../lib/api";
+import { AuthShell } from "../components/AuthShell";
 
 interface LoginResponse {
   mfa_required?: boolean;
@@ -50,7 +51,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="stack" aria-busy={pending}>
+    <AuthShell eyebrow="Partner access" title="Return to your guide workspace."><div className="stack auth-form" aria-busy={pending}>
       <section aria-labelledby="login-heading">
         <h1 id="login-heading">Guide sign in</h1>
         <p className="muted">
@@ -106,8 +107,8 @@ export default function LoginPage() {
       )}
 
       <p className="muted">
-        New to guiding? <Link href="/register">Register as a guide</Link>
+        <Link href="/forgot-password">Forgot your password?</Link>{" · "}New to guiding? <Link href="/register">Register as a guide</Link>
       </p>
-    </div>
+    </div></AuthShell>
   );
 }

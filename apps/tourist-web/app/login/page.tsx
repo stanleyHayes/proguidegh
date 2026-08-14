@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Alert, Button, Input } from "@proguidegh/ui";
 import { api, errorMessage } from "../lib/api";
+import { AuthShell } from "../components/AuthShell";
 
 interface LoginResponse {
   mfa_required?: boolean;
@@ -50,7 +51,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="stack" aria-busy={pending}>
+    <AuthShell eyebrow="Welcome back" title="Your Ghana journey, all in one place."><div className="stack auth-form" aria-busy={pending}>
       <section aria-labelledby="login-heading">
         <h1 id="login-heading">Sign in</h1>
         <p className="muted">
@@ -110,6 +111,6 @@ export default function LoginPage() {
         {" · "}
         New here? <Link href="/register">Create an account</Link>
       </p>
-    </div>
+    </div></AuthShell>
   );
 }

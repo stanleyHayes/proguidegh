@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Alert, Button, Input } from "@proguidegh/ui";
 import { api, errorMessage } from "../lib/api";
+import { AuthShell } from "../components/AuthShell";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -35,7 +36,7 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="stack" aria-busy={pending}>
+    <AuthShell eyebrow="Account recovery" title="Get securely back to your plans."><div className="stack auth-form" aria-busy={pending}>
       <section aria-labelledby="forgot-heading">
         <h1 id="forgot-heading">Reset your password</h1>
         <p className="muted">
@@ -79,6 +80,6 @@ export default function ForgotPasswordPage() {
       <p className="muted">
         Remembered it? <Link href="/login">Back to sign in</Link>
       </p>
-    </div>
+    </div></AuthShell>
   );
 }

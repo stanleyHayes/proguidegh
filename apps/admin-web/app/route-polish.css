@@ -29,7 +29,7 @@
 
 .command-brief span {
   margin-right: 0.2rem;
-  color: #a9c0bb;
+  color: var(--gg-color-primary);
   font-size: 0.74rem;
   font-weight: 750;
   letter-spacing: 0.1em;
@@ -38,9 +38,10 @@
 
 .command-brief a {
   padding: 0.58rem 0.78rem;
-  border: 1px solid rgb(255 255 255 / 0.14);
+  border: 1px solid color-mix(in srgb, var(--gg-color-primary) 22%, var(--gg-color-border));
   border-radius: 999px;
-  color: #eef5f2;
+  background: color-mix(in srgb, var(--gg-color-primary) 6%, var(--gg-color-surface));
+  color: var(--gg-color-primary-strong);
   font-size: 0.82rem;
   font-weight: 650;
   text-decoration: none;
@@ -48,8 +49,9 @@
 }
 
 .command-brief a:hover {
-  border-color: rgb(255 255 255 / 0.3);
-  background: rgb(255 255 255 / 0.08);
+  border-color: color-mix(in srgb, var(--gg-color-primary) 48%, var(--gg-color-border));
+  background: color-mix(in srgb, var(--gg-color-primary) 12%, var(--gg-color-surface));
+  color: var(--gg-color-field);
 }
 
 @media (max-width: 700px) {
@@ -123,3 +125,32 @@
   .admin-topbar strong { font-size: 0.9rem; }
   .container { padding-top: 1.25rem; }
 }
+
+/* Shell mechanics: the rail never participates in document scroll. Only its
+   navigation region scrolls, keeping brand, workspace and account controls fixed. */
+.admin-frame { display: block; }
+.admin-rail { position: fixed; inset: 0 auto 0 0; height: 100dvh; overflow: hidden; }
+.admin-stage { margin-left: 18.5rem; }
+.admin-nav { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; padding-right: 0.2rem; scrollbar-width: thin; scrollbar-color: rgb(255 255 255 / 0.16) transparent; }
+.admin-profile { width: 100%; border-right: 0; border-bottom: 0; border-left: 0; background: transparent; color: inherit; text-align: left; cursor: pointer; }
+.admin-profile > b { color: #91afa8; letter-spacing: 0.08em; }
+.auth-stage { min-height: 100dvh; display: grid; place-items: center; padding: 1.25rem; background: radial-gradient(circle at 12% 8%, rgb(201 151 61 / 0.12), transparent 30rem), #f3f0e8; }
+.auth-stage > .stack { width: min(100%, 30rem); padding: clamp(1.25rem, 4vw, 2rem); border: 1px solid var(--gg-color-border); border-radius: var(--gg-radius-lg); background: var(--gg-color-surface); box-shadow: var(--gg-shadow-lg); }
+.auth-stage .stack > section:first-child { padding: 0; border: 0; box-shadow: none; }
+.admin-popover-anchor { position: relative; }
+.admin-icon-button { position: relative; display: grid; place-items: center; width: 2.45rem; height: 2.45rem; border: 1px solid var(--gg-color-border); border-radius: 0.75rem; background: var(--gg-color-surface); color: var(--gg-color-ink); font-size: 1.2rem; cursor: pointer; }
+.admin-icon-button > i { position: absolute; right: 0.5rem; top: 0.45rem; width: 0.4rem; height: 0.4rem; border-radius: 50%; background: #c5674f; }
+.admin-popover { position: absolute; z-index: 70; right: 0; top: calc(100% + 0.65rem); width: min(22rem, calc(100vw - 1.5rem)); overflow: hidden; border: 1px solid var(--gg-color-border); border-radius: 1rem; background: var(--gg-color-surface); box-shadow: 0 24px 70px -26px rgb(11 53 50 / 0.45); }
+.admin-popover header { display: flex; align-items: center; gap: 0.75rem; padding: 1rem; border-bottom: 1px solid var(--gg-color-border); background: var(--gg-color-surface-alt); }
+.admin-popover header button { margin-left: auto; border: 0; background: transparent; font-size: 1.15rem; cursor: pointer; }
+.admin-popover header > span { display: grid; place-items: center; width: 2.35rem; height: 2.35rem; border-radius: 0.7rem; background: var(--gg-color-field); color: #fff; font-size: 0.72rem; font-weight: 800; }
+.admin-popover header div { display: grid; }.admin-popover header small { color: var(--gg-color-muted); }
+.admin-account-menu > a, .admin-account-menu > button { display: grid; width: 100%; gap: 0.1rem; padding: 0.8rem 1rem; border: 0; background: transparent; color: var(--gg-color-ink); font: inherit; text-align: left; text-decoration: none; cursor: pointer; }
+.admin-account-menu > a:hover, .admin-account-menu > button:hover { background: var(--gg-color-surface-alt); }
+.admin-account-menu small { color: var(--gg-color-muted); font-size: 0.7rem; }.admin-account-menu .is-danger { color: var(--gg-color-danger); border-top: 1px solid var(--gg-color-border); }
+.admin-empty { display: grid; justify-items: center; gap: 0.4rem; padding: 2rem 1.25rem; text-align: center; }.admin-empty > span { display: grid; place-items: center; width: 2.6rem; height: 2.6rem; border-radius: 50%; background: #e2eee8; color: var(--gg-color-success); }.admin-empty p { margin: 0; color: var(--gg-color-muted); font-size: 0.8rem; }.admin-notifications > a { display: block; padding: 0.75rem 1rem; border-top: 1px solid var(--gg-color-border); color: var(--gg-color-primary); font-size: 0.78rem; font-weight: 700; text-decoration: none; }
+.admin-tour { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 1rem; background: rgb(5 20 19 / 0.68); backdrop-filter: blur(5px); }
+.admin-tour__card { position: relative; width: min(100%, 25rem); padding: 1.5rem; border: 1px solid rgb(255 255 255 / 0.12); border-radius: 1.4rem; background: var(--gg-color-surface); box-shadow: 0 30px 90px rgb(0 0 0 / 0.35); }.admin-tour__card > span { color: var(--gg-color-primary); font-size: 0.64rem; font-weight: 800; letter-spacing: 0.14em; }.admin-tour__card > button { position: absolute; right: 1rem; top: 0.8rem; border: 0; background: transparent; font-size: 1.2rem; }.admin-tour__guide { display: grid; place-items: center; width: 3.2rem; height: 3.2rem; margin: 1.3rem 0; border-radius: 1rem; background: var(--gg-color-field); color: var(--gg-color-gold); font-weight: 800; }.admin-tour__card p { color: var(--gg-color-muted); }.admin-tour__card footer { display: flex; justify-content: space-between; gap: 0.75rem; margin-top: 1.5rem; }.admin-tour__card footer button { min-height: 2.65rem; padding: 0 1rem; border: 1px solid var(--gg-color-border); border-radius: 0.7rem; background: var(--gg-color-surface); font-weight: 700; }.admin-tour__card footer .is-primary { margin-left: auto; border-color: var(--gg-color-primary); background: var(--gg-color-primary); color: #fff; }
+.account-tabs { display: flex; gap: 0.4rem; width: fit-content; max-width: 100%; padding: 0.35rem; overflow-x: auto; border: 1px solid var(--gg-color-border); border-radius: 999px; background: var(--gg-color-surface-alt); }.account-tabs button { padding: 0.65rem 1rem; border: 0; border-radius: 999px; background: transparent; color: var(--gg-color-muted); font: inherit; font-size: 0.8rem; font-weight: 700; text-transform: capitalize; }.account-tabs button[aria-current="page"] { background: var(--gg-color-surface); color: var(--gg-color-primary); box-shadow: var(--gg-shadow-sm); }.account-avatar-large { display: grid; place-items: center; width: 4.2rem; height: 4.2rem; margin-bottom: 1.2rem; border-radius: 1.2rem; background: var(--gg-color-field); color: var(--gg-color-gold); font-size: 1rem; font-weight: 800; }.account-details { display: grid; gap: 0.75rem; margin: 0; }.account-details div { display: grid; grid-template-columns: 7rem 1fr; gap: 1rem; padding-bottom: 0.65rem; border-bottom: 1px solid var(--gg-color-border); }.account-details dt { color: var(--gg-color-muted); font-size: 0.75rem; }.account-details dd { margin: 0; color: var(--gg-color-ink); font-weight: 650; }.account-form { display: grid; gap: 1rem; margin-top: 1rem; }.security-status { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--gg-color-success); font-weight: 700; }.security-status i { width: 0.48rem; height: 0.48rem; border-radius: 50%; background: currentColor; }.setting-list { display: grid; }.setting-toggle { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid var(--gg-color-border); cursor: pointer; }.setting-toggle:last-child { border-bottom: 0; }.setting-toggle > span { display: grid; }.setting-toggle small { color: var(--gg-color-muted); }.setting-toggle input { position: absolute; opacity: 0; pointer-events: none; }.setting-toggle > i { position: relative; width: 2.7rem; height: 1.5rem; border-radius: 999px; background: var(--gg-color-border); transition: background 180ms ease; }.setting-toggle > i::after { content: ""; position: absolute; left: 0.18rem; top: 0.18rem; width: 1.14rem; height: 1.14rem; border-radius: 50%; background: #fff; box-shadow: 0 2px 5px rgb(0 0 0 / 0.18); transition: transform 180ms ease; }.setting-toggle input:checked + i { background: var(--gg-color-primary); }.setting-toggle input:checked + i::after { transform: translateX(1.2rem); }
+@media (max-width: 1100px) { .admin-stage { margin-left: 16rem; } }
+@media (max-width: 760px) { .admin-stage { margin-left: 0; } .admin-popover { position: fixed; right: 0.75rem; top: 4.5rem; } }
