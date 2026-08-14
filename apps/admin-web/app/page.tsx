@@ -20,41 +20,12 @@ export default function CommandCenterPage() {
             {apiHealth.service} · {apiHealth.status}
           </Badge>
         </p>
-        <nav aria-label="Admin sections" className="nav-actions">
-          <a className="gg-button gg-button--secondary" href="/login">
-            Sign in
-          </a>
-          <a className="gg-button gg-button--secondary" href="/admin/users">
-            Users & roles
-          </a>
-          <a className="gg-button gg-button--secondary" href="/admin/guides">
-            Guide directory
-          </a>
-          <a className="gg-button gg-button--secondary" href="/admin/tours">
-            Operations board
-          </a>
-          <a className="gg-button gg-button--secondary" href="/admin/incidents">
-            Safety desk
-          </a>
-          <a className="gg-button gg-button--secondary" href="/admin/quality">
-            Quality &amp; retraining
-          </a>
-          <a className="gg-button gg-button--secondary" href="/admin/finance">
-            Finance &amp; payouts
-          </a>
-          <a className="gg-button gg-button--secondary" href="/admin/training">
-            Training
-          </a>
-          <a className="gg-button gg-button--secondary" href="/admin/reports">
-            Reports
-          </a>
-          <a className="gg-button gg-button--secondary" href="/admin/settings">
-            Configuration
-          </a>
-          <a className="gg-button gg-button--secondary" href="/admin/audit">
-            Audit trail
-          </a>
-        </nav>
+        <div className="command-brief" aria-label="Priority admin actions">
+          <span>Priority lanes</span>
+          <a href="/admin/incidents">Review safety desk</a>
+          <a href="/admin/guides">Process certification</a>
+          <a href="/admin/reports">Open reporting</a>
+        </div>
       </section>
 
       <div className="grid grid--cols-4" aria-label="Platform stats">

@@ -15,8 +15,10 @@ import { colors, fontSize, radius, space } from "@proguidegh/tokens";
 
 export function LoadingState({ label = "Loading…" }: { label?: string }) {
   return (
-    <View style={styles.center}>
-      <ActivityIndicator color={colors.primary} size="large" />
+    <View style={[styles.center, styles.statePanel]}>
+      <View style={styles.loadingMark}>
+        <ActivityIndicator color={colors.surface} size="small" />
+      </View>
       <Text style={styles.muted}>{label}</Text>
     </View>
   );
@@ -43,7 +45,8 @@ export function ErrorState({
 
 export function EmptyState({ title, body }: { title: string; body?: string }) {
   return (
-    <View style={styles.center}>
+    <View style={[styles.center, styles.statePanel]}>
+      <View style={styles.emptyMark}><Text style={styles.emptyMarkText}>PG</Text></View>
       <Text style={styles.emptyTitle}>{title}</Text>
       {body ? <Text style={styles.muted}>{body}</Text> : null}
     </View>
@@ -164,6 +167,30 @@ export function PrimaryButton({
 
 const styles = StyleSheet.create({
   center: { alignItems: "center", gap: space[2], padding: space[6] },
+  statePanel: {
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    marginVertical: space[3],
+  },
+  loadingMark: {
+    alignItems: "center",
+    backgroundColor: colors.primaryStrong,
+    borderRadius: radius.md,
+    height: 44,
+    justifyContent: "center",
+    width: 44,
+  },
+  emptyMark: {
+    alignItems: "center",
+    backgroundColor: colors.surfaceAlt,
+    borderRadius: radius.md,
+    height: 44,
+    justifyContent: "center",
+    width: 44,
+  },
+  emptyMarkText: { color: colors.primary, fontSize: fontSize.sm, fontWeight: "700" },
   muted: { color: colors.muted, fontSize: fontSize.sm, textAlign: "center" },
   errorBox: {
     backgroundColor: colors.surfaceAlt,
@@ -179,7 +206,7 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     backgroundColor: colors.surfaceAlt,
     borderColor: colors.border,
-    borderRadius: radius.full,
+    borderRadius: radius.sm,
     borderWidth: 1,
     paddingHorizontal: space[2],
     paddingVertical: 2,
@@ -193,7 +220,8 @@ const styles = StyleSheet.create({
   chipRow: { flexDirection: "row", flexWrap: "wrap", gap: space[2] },
   chip: {
     borderColor: colors.border,
-    borderRadius: radius.full,
+    backgroundColor: colors.surface,
+    borderRadius: radius.sm,
     borderWidth: 1,
     justifyContent: "center",
     minHeight: 36,
@@ -207,17 +235,17 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     borderRadius: radius.md,
     borderWidth: 1,
-    gap: space[2],
-    padding: space[4],
+    gap: space[3],
+    padding: space[6],
   },
   primary: {
     alignItems: "center",
     backgroundColor: colors.primary,
-    borderRadius: radius.md,
+    borderRadius: radius.sm,
     justifyContent: "center",
-    minHeight: 44,
+    minHeight: 50,
     paddingHorizontal: space[4],
   },
   primaryDisabled: { opacity: 0.5 },
-  primaryLabel: { color: colors.surface, fontSize: fontSize.base, fontWeight: "600" },
+  primaryLabel: { color: colors.surface, fontSize: fontSize.base, fontWeight: "700" },
 });

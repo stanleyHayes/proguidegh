@@ -1,5 +1,7 @@
 import Link from "next/link";
+import Image from "next/image";
 import { APP_URL, getContent, SITE_URL } from "./lib/content";
+import { destinationImages } from "./lib/images";
 import { Credential, Rule, SectionHead } from "./components/site";
 
 /**
@@ -126,19 +128,10 @@ export default async function HomePage() {
             </div>
           </div>
 
-          <div className="reveal" style={{ animationDelay: "120ms" }}>
-            <Credential
-              tilt
-              name={sampleCredential.name}
-              licence={sampleCredential.licence}
-              region={sampleCredential.region}
-              languages={sampleCredential.languages}
-              specialties={sampleCredential.specialties}
-              rating={sampleCredential.rating}
-              tours={sampleCredential.tours}
-              since={sampleCredential.since}
-              note="Illustrative credential. Every guide's real licence is on their profile."
-            />
+          <div className="hero__visual reveal" style={{ animationDelay: "120ms" }}>
+            <Image className="hero__photo" src="/images/marketing/guide-led-accra.webp" alt="A Ghanaian guide sharing local context with two travelers in Accra" fill priority sizes="(min-width: 992px) 46vw, 100vw" />
+            <div className="hero__credential"><Credential tilt name={sampleCredential.name} licence={sampleCredential.licence} region={sampleCredential.region} languages={sampleCredential.languages} specialties={sampleCredential.specialties} rating={sampleCredential.rating} tours={sampleCredential.tours} since={sampleCredential.since} /></div>
+            <p className="hero__caption">Local context, before the first step.</p>
           </div>
         </div>
       </section>
@@ -215,10 +208,10 @@ export default async function HomePage() {
 
           <div className="grid grid--3">
             {destinations.map((d) => (
-              <article className="card" key={d.slug}>
-                <p className="eyebrow" style={{ marginBottom: "0.5rem" }}>{d.region}</p>
-                <h3>{d.city}</h3>
-                <p style={{ marginBottom: "0.75rem" }}>{d.tagline}</p>
+              <article className="card destination-card" key={d.slug}>
+                <div className="destination-card__media"><Image src={destinationImages[d.slug]?.src ?? "/images/marketing/guide-led-accra.webp"} alt={destinationImages[d.slug]?.alt ?? `${d.city}, Ghana`} fill sizes="(min-width: 928px) 33vw, (min-width: 640px) 50vw, 100vw" /></div>
+                <div className="destination-card__body"><p className="eyebrow" style={{ marginBottom: "0.5rem" }}>{d.region}</p>
+                <h3>{d.city}</h3><p style={{ marginBottom: "0.75rem" }}>{d.tagline}</p>
                 <ul className="tags">
                   {d.bestFor.slice(0, 3).map((tag) => (
                     <li className="tag" key={tag}>
@@ -230,7 +223,7 @@ export default async function HomePage() {
                   <Link href={`/destinations/${d.slug}`} style={{ color: "var(--green)", fontWeight: 600 }}>
                     What a guide adds in {d.city} →
                   </Link>
-                </p>
+                </p></div>
               </article>
             ))}
           </div>

@@ -29,12 +29,12 @@ export default function OpenGraphImage() {
       >
         <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
           <svg fill="none" height="56" viewBox="0 0 32 32" width="56">
-            <rect fill="#0b6e4f" height="32" rx="9" width="32" />
+            <rect fill="#0b3532" height="32" rx="9" width="32" />
             <path d="M16 5.5 L20.8 19.4 L16 16.5 L11.2 19.4 Z" fill="#ffffff" />
-            <circle cx="16" cy="24" r="2.1" fill="#f5b70a" />
+            <circle cx="16" cy="24" r="2.1" fill="#c9973d" />
           </svg>
           <div style={{ display: "flex", fontSize: 38, fontWeight: 700, color: "#ffffff" }}>
-            ProGuide<span style={{ color: "#f5b70a" }}>GH</span>
+            ProGuide<span style={{ color: "#c9973d" }}>GH</span>
           </div>
         </div>
 
@@ -53,7 +53,7 @@ export default function OpenGraphImage() {
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-          <div style={{ display: "flex", width: "64px", height: "4px", background: "#f5b70a" }} />
+          <div style={{ display: "flex", width: "64px", height: "4px", background: "#c9973d" }} />
           <div style={{ display: "flex", fontSize: 28, color: "#9fb4a8", letterSpacing: "0.04em" }}>
             Accra · Cape Coast · Kumasi
           </div>

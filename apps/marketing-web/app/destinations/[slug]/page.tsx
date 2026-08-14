@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { APP_URL, getContent, SITE_URL } from "../../lib/content";
+import { destinationImages } from "../../lib/images";
 import { Rule, SectionHead } from "../../components/site";
 
 interface Params {
@@ -95,6 +97,7 @@ export default async function DestinationPage({ params }: Params) {
       <section className="band band--surface">
         <div className="wrap split">
           <div>
+            <div className="destination-feature__media"><Image src={destinationImages[d.slug]!.src} alt={destinationImages[d.slug]!.alt} fill priority sizes="(min-width: 768px) 48vw, 100vw" /></div>
             <SectionHead eyebrow="What a guide adds" title={`Going with someone who knows ${d.city}`} />
             <p className="prose">{d.blurb}</p>
             <ul className="tags">

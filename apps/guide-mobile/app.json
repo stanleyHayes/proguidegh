@@ -96,7 +96,7 @@
     "android": {
       "package": "gh.proguide.guide",
       "adaptiveIcon": {
-        "backgroundColor": "#0b6e4f",
+        "backgroundColor": "#0b3532",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
@@ -124,7 +124,7 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#0b6e4f",
+          "backgroundColor": "#0b3532",
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 96
         }

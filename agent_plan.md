@@ -1,6 +1,8 @@
 # ProGuideGH — Agent Plan
 
 **Version:** 1.1 • **Date:** 2026-08-13 • **Status:** Active
+
+> **Design-system completion lane (2026-08-14):** product-wide responsive redesign implemented across marketing, tourist web, guide web, admin web, tourist mobile, guide mobile and shared UI/token packages. Static gates are green; see `docs/implementation-status.md` Phase 8 evidence. Host-started live QA is complete for tourist and marketing; guide/admin QA found and fixed two final shell issues, with fresh screenshot confirmation pending a restart of the host-owned processes on ports 3001–3002.
 **Product name:** **ProGuideGH** (one word) • **Slug / repo root:** `proguidegh`
 _Renamed from the legacy working name "Guide Ghana" — see Phase 0b. Source-document filenames below keep their original names on purpose._
 **Source documents:**
@@ -166,7 +168,7 @@ Step 5 must return **only** §2b.3 allow-listed lines. Anything else is an incom
 | P1-02 | Registration/login/OTP request+verify/password reset | Codex | ✅ |
 | P1-03 | Session model: short-lived access + rotating refresh, HttpOnly cookies, revocation | Codex | ✅ |
 | P1-04 | RBAC authorization layer + middleware (permission-enforced, not UI-only) | Codex | ✅ |
-| P1-05 | MFA for Super Admin/finance roles; step-up auth for sensitive actions | Codex | ✅ |
+| P1-05 | MFA for Super Admin/finance roles; step-up auth for sensitive actions | Codex | 🔵 **partial — Appendix D blocker.** TOTP enrol/verify and login challenge work, but MFA is **not enforced by role** (`MFARequiredRole` is dead code; `Login` only checks whether the user chose to enrol) and **step-up re-auth on sensitive actions does not exist**. See the 2026-08-14 finding in `docs/implementation-status.md` |
 | P1-06 | Tourist profile endpoints + UI | Codex | ✅ |
 | P1-07 | Guide application/profile shell + private document upload (R2 signed URLs, mock-capable) | Codex | ✅ |
 | P1-08 | Admin user/guide directory | Codex | ✅ |
@@ -383,6 +385,26 @@ Reusable as-is: `@proguidegh/contracts` (plain TS). **Not reusable:** `@proguide
 
 ## 4. Agent Stop Conditions (Spec Appendix D — launch blockers)
 No prod webhook verification · failing ledger invariants · auth/RBAC bypass · SOS not reaching ops · no backup/restore · admin MFA missing · unearned verified/insured badges · public personal documents · duplicate payout possible · secrets committed.
+
+## 4b. Audit findings — 2026-08-14 (open, behind a ✅)
+
+Two items were marked done but are not. Both are recorded with evidence in
+`docs/implementation-status.md`.
+
+| # | Finding | Severity |
+|---|---|---|
+| A | **P1-05 MFA is not enforced by role.** `Login` checks only whether a user *enrolled*; `MFARequiredRole` is dead code outside tests. A `super_admin` who never enrols signs in with a password alone. There is also **no step-up re-auth** for role changes, payout-account edits or refunds — §15.2 requires both | **Appendix D launch blocker** |
+| B | **No tourist `/support` surface.** SOS works on an active booking, but §18.1's standalone support/incidents page is missing and there is no tourist-facing incident endpoint (`/admin/incidents` is admin-only) | Spec gap, needs a backend slice |
+
+Not gaps, recorded so nobody re-opens them: `/guide/payouts` is deliberately
+folded into `/guide/wallet`; MongoDB is absent, which §1.2 permits.
+
+Fixing A means denying privileged permissions until a required user enrols —
+a `MFASatisfied` flag on `rbac.Identity` set in `RequireAuth`, checked in
+`RequirePermission`. `/me/mfa/enroll` sits behind `RequireAuth` only, so
+enrolment stays reachable. It will fail ~10 integration tests whose harness
+grants `super_admin` and immediately calls admin endpoints, which is itself
+proof the gap is real.
 
 ## 5. Current Status Snapshot
 - **Active phase:** Phase 5 — Dispatch, Realtime & Tour Operations (Phases 0, 0b, 1–4 complete and evidence-logged).

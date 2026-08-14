@@ -17,7 +17,7 @@ import { colors, contentMax, fontSize, radius, remBase, space } from "../src/ind
 const here = dirname(fileURLToPath(import.meta.url));
 const cssPath = resolve(here, "../../ui/src/tokens.css");
 
-/** `--gg-color-primary: #0b6e4f;` -> Map { "--gg-color-primary" => "#0b6e4f" } */
+/** `--gg-color-primary: #176b63;` -> Map { "--gg-color-primary" => "#176b63" } */
 function parseCustomProperties(css) {
   const found = new Map();
   for (const [, name, value] of css.matchAll(/(--[\w-]+)\s*:\s*([^;]+);/g)) {

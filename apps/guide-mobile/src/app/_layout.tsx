@@ -35,10 +35,11 @@ function RouteGate() {
   return (
     <Stack
       screenOptions={{
-        headerStyle: { backgroundColor: colors.primary },
+        headerStyle: { backgroundColor: colors.primaryStrong },
         headerTintColor: colors.surface,
-        headerTitleStyle: { fontSize: fontSize.lg, fontWeight: "600" },
-        contentStyle: { backgroundColor: colors.surface },
+        headerTitleStyle: { fontSize: fontSize.lg, fontWeight: "700" },
+        headerShadowVisible: false,
+        contentStyle: { backgroundColor: colors.surfaceAlt },
       }}
     >
       <Stack.Screen name="index" options={{ title: "ProGuideGH Guides" }} />

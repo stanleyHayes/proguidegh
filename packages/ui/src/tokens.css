@@ -3,32 +3,32 @@
  * Mobile-first; consumed by all web apps. Extend — don't hardcode — in apps.
  */
 :root {
-  /* Brand colors (accessible contrast on white) */
-  --gg-color-primary: #0b6e4f; /* Ghana green */
-  --gg-color-primary-strong: #084c36;
-  --gg-color-accent: #c8102e; /* Ghana red */
-  --gg-color-gold: #f5b70a; /* Ghana gold */
-  --gg-color-ink: #1a1a1a;
-  --gg-color-muted: #5a5a5a;
-  --gg-color-surface: #ffffff;
-  --gg-color-surface-alt: #f6f7f6;
-  --gg-color-border: #d9ddd9;
-  --gg-color-focus: #1d4ed8;
+  /* Brand colors — Ghana field journal: mineral, clay, brass and warm paper. */
+  --gg-color-primary: #176b63;
+  --gg-color-primary-strong: #0e4c47;
+  --gg-color-accent: #c7653f;
+  --gg-color-gold: #c9973d;
+  --gg-color-ink: #172421;
+  --gg-color-muted: #66736f;
+  --gg-color-surface: #fffdf8;
+  --gg-color-surface-alt: #f3f0e8;
+  --gg-color-border: #dcd8cd;
+  --gg-color-focus: #176b63;
 
   /* Status */
-  --gg-color-success: #0b6e4f;
-  --gg-color-warning: #92400e;
-  --gg-color-danger: #b91c1c;
+  --gg-color-success: #2e745c;
+  --gg-color-warning: #9a641f;
+  --gg-color-danger: #b5473c;
 
   /* Typography */
   --gg-font-sans:
-    system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
-    sans-serif;
+    Outfit, "Avenir Next", "Segoe UI", sans-serif;
+  --gg-font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
   --gg-text-sm: 0.875rem;
   --gg-text-base: 1rem;
-  --gg-text-lg: 1.125rem;
-  --gg-text-xl: 1.375rem;
-  --gg-text-2xl: 1.75rem;
+  --gg-text-lg: 1.1875rem;
+  --gg-text-xl: 1.5rem;
+  --gg-text-2xl: 2rem;
 
   /* Spacing scale */
   --gg-space-1: 0.25rem;
@@ -40,10 +40,18 @@
   --gg-space-12: 3rem;
 
   /* Radii */
-  --gg-radius-sm: 0.375rem;
-  --gg-radius-md: 0.75rem;
+  --gg-radius-sm: 0.5rem;
+  --gg-radius-md: 1.125rem;
   --gg-radius-full: 999px;
 
   /* Layout */
-  --gg-content-max: 72rem;
+  --gg-content-max: 78rem;
+
+  /* Web-only compositional tokens. */
+  --gg-color-field: #0b3532;
+  --gg-color-field-soft: #174844;
+  --gg-color-paper-deep: #e9e4d8;
+  --gg-shadow-sm: 0 1px 2px rgb(23 36 33 / 0.05), 0 8px 24px rgb(23 36 33 / 0.05);
+  --gg-shadow-lg: 0 24px 64px rgb(14 76 71 / 0.13);
+  --gg-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
 }

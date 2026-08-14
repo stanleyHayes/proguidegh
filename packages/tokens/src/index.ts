@@ -18,31 +18,31 @@
 export const remBase = 16;
 
 export const colors = {
-  /** Ghana green — primary actions, active states. */
-  primary: "#0b6e4f",
-  primaryStrong: "#084c36",
-  /** Ghana red — destructive and alert emphasis only. */
-  accent: "#c8102e",
-  /** Ghana gold — ratings, badges, highlights. */
-  gold: "#f5b70a",
-  ink: "#1a1a1a",
-  muted: "#5a5a5a",
-  surface: "#ffffff",
-  surfaceAlt: "#f6f7f6",
-  border: "#d9ddd9",
-  focus: "#1d4ed8",
-  success: "#0b6e4f",
-  warning: "#92400e",
-  danger: "#b91c1c",
+  /** Mineral teal — primary actions, navigation and active states. */
+  primary: "#176b63",
+  primaryStrong: "#0e4c47",
+  /** Burnt clay — expressive emphasis; never used as a generic alert colour. */
+  accent: "#c7653f",
+  /** Restrained brass — ratings, certification and editorial highlights. */
+  gold: "#c9973d",
+  ink: "#172421",
+  muted: "#66736f",
+  surface: "#fffdf8",
+  surfaceAlt: "#f3f0e8",
+  border: "#dcd8cd",
+  focus: "#176b63",
+  success: "#2e745c",
+  warning: "#9a641f",
+  danger: "#b5473c",
 } as const;
 
 /** Font sizes in density-independent pixels. */
 export const fontSize = {
   sm: 14,
   base: 16,
-  lg: 18,
-  xl: 22,
-  "2xl": 28,
+  lg: 19,
+  xl: 24,
+  "2xl": 32,
 } as const;
 
 /** Spacing scale in density-independent pixels. */
@@ -57,13 +57,13 @@ export const space = {
 } as const;
 
 export const radius = {
-  sm: 6,
-  md: 12,
+  sm: 8,
+  md: 18,
   full: 999,
 } as const;
 
 /** Widest content column, matching the web `--gg-content-max`. */
-export const contentMax = 1152;
+export const contentMax = 1248;
 
 export const tokens = {
   remBase,

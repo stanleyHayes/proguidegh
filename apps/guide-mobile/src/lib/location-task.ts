@@ -21,6 +21,7 @@ import * as Location from "expo-location";
 import * as TaskManager from "expo-task-manager";
 import * as SecureStore from "expo-secure-store";
 import Constants from "expo-constants";
+import { colors } from "@proguidegh/tokens";
 
 export const LOCATION_TASK = "proguidegh-guide-location";
 
@@ -119,7 +120,7 @@ export async function startBackgroundLocation(): Promise<boolean> {
       notificationTitle: "ProGuideGH is sharing your location",
       notificationBody:
         "Your tourist and the operations team can see you while your tour is active.",
-      notificationColor: "#0b6e4f",
+      notificationColor: colors.primary,
     },
   });
   return true;

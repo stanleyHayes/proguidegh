@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { getContent } from "../lib/content";
+import { destinationImages } from "../lib/images";
 import { Rule } from "../components/site";
 
 export const metadata: Metadata = {
@@ -38,6 +40,7 @@ export default async function DestinationsPage() {
         >
           <div className="wrap split">
             <div>
+              <div className="destination-feature__media"><Image src={destinationImages[d.slug]!.src} alt={destinationImages[d.slug]!.alt} fill sizes="(min-width: 768px) 48vw, 100vw" /></div>
               <p className="eyebrow">{d.region}</p>
               <h2 className="h2">{d.city}</h2>
               <p className="lede" style={{ marginTop: "0.75rem" }}>{d.tagline}</p>

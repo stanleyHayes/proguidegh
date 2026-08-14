@@ -18,6 +18,7 @@ export function Nav() {
       <div className="wrap nav__inner">
         <Link className="nav__brand" href="/">
           <Logo />
+          <span className="nav__brand-copy">Certified journeys<small>Ghana, guided better</small></span>
         </Link>
         {/* Links collapse on small screens; the primary action never does —
             most of this audience arrives on a phone. */}
@@ -27,11 +28,11 @@ export function Nav() {
           <Link href="/pricing">Pricing</Link>
           <Link href="/become-a-guide">Become a guide</Link>
         </div>
-        <a className="btn btn--gold btn--sm" href={`${APP_URL}/search`}>
-          Find a guide
-        </a>
+        <div className="nav__actions">
+          <a className="nav__signin" href={`${APP_URL}/login`}>Sign in</a>
+          <a className="btn btn--gold btn--sm" href={`${APP_URL}/search`}><span>Find a guide</span><b aria-hidden="true">↗</b></a>
+        </div>
       </div>
-      <Rule onField />
     </nav>
   );
 }
@@ -40,9 +41,20 @@ export function Footer({ content }: { content: MarketingContent }) {
   return (
     <footer className="foot">
       <div className="wrap">
-        <div className="grid grid--4">
+        <div className="foot__cta">
+          <div><p className="eyebrow">Your Ghana story starts locally</p><h2>Meet the guide who makes the place make sense.</h2></div>
+          <a className="btn btn--gold" href={`${APP_URL}/search`}>Find your guide <b aria-hidden="true">↗</b></a>
+        </div>
+        <div className="foot__grid">
+          <div className="foot__brand">
+            <Logo />
+            <p>
+              Certified local knowledge for safer, richer travel across Ghana.
+            </p>
+            <span className="foot__status"><i /> Live in Accra, Cape Coast &amp; Kumasi</span>
+          </div>
           <div>
-            <h4>Travellers</h4>
+            <h4>Explore</h4>
             <ul>
               <li>
                 <a href={`${APP_URL}/search`}>Find a guide</a>
@@ -57,29 +69,12 @@ export function Footer({ content }: { content: MarketingContent }) {
                 <Link href="/pricing">Pricing</Link>
               </li>
               <li>
-                <Link href="/faq">Questions</Link>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h4>Guides</h4>
-            <ul>
-              <li>
                 <Link href="/become-a-guide">Become a guide</Link>
               </li>
-              <li>
-                <a href={`${APP_URL}/register`}>Apply now</a>
-              </li>
-              <li>
-                <Link href="/become-a-guide#certification">Certification</Link>
-              </li>
-              <li>
-                <Link href="/pricing#guides">What you earn</Link>
-              </li>
             </ul>
           </div>
           <div>
-            <h4>Company</h4>
+            <h4>Support & policy</h4>
             <ul>
               <li>
                 <Link href="/about">About</Link>
@@ -88,15 +83,8 @@ export function Footer({ content }: { content: MarketingContent }) {
                 <Link href="/contact">Contact</Link>
               </li>
               <li>
-                <a href={`mailto:${content.contact.supportEmail}`}>
-                  {content.contact.supportEmail}
-                </a>
+                <Link href="/faq">Common questions</Link>
               </li>
-            </ul>
-          </div>
-          <div>
-            <h4>Legal</h4>
-            <ul>
               <li>
                 <Link href="/legal/terms">Terms of service</Link>
               </li>
@@ -104,12 +92,13 @@ export function Footer({ content }: { content: MarketingContent }) {
                 <Link href="/legal/privacy">Privacy policy</Link>
               </li>
               <li>
-                <Link href="/legal/location">Location sharing</Link>
-              </li>
-              <li>
-                <Link href="/account/delete">Delete your account</Link>
+                <a href={`mailto:${content.contact.supportEmail}`}>Contact support</a>
               </li>
             </ul>
+          </div>
+          <div>
+            <h4>For guides</h4>
+            <ul><li><Link href="/become-a-guide">Become certified</Link></li><li><a href={`${APP_URL}/login`}>Guide sign in</a></li><li><Link href="/contact">Partner with us</Link></li></ul>
           </div>
         </div>
 

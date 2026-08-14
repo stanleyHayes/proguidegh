@@ -94,19 +94,41 @@ export default function GuideDashboardPage() {
 
   if (state === "unauthenticated") {
     return (
-      <div className="stack">
-        <h1>Guide dashboard</h1>
-        <Alert tone="info" title="Sign in required">
-          <p>Sign in with your guide account to see jobs, tours and earnings.</p>
-        </Alert>
-        <p className="nav-actions">
-          <Link className="gg-button gg-button--primary" href="/login">
-            Sign in
-          </Link>
-          <Link className="gg-button gg-button--secondary" href="/register">
-            Register as a guide
-          </Link>
-        </p>
+      <div className="stack guide-welcome">
+        <section className="guide-welcome__hero" aria-labelledby="guide-welcome-heading">
+          <p className="guide-welcome__eyebrow">Your guide workspace</p>
+          <h1 id="guide-welcome-heading">Lead remarkable journeys across Ghana.</h1>
+          <p className="guide-welcome__intro">
+            Sign in to manage offers, upcoming tours, certification and payouts
+            from one calm, focused workspace.
+          </p>
+          <div className="nav-actions guide-welcome__actions">
+            <Link className="gg-button gg-button--primary" href="/login">
+              Sign in to your workspace
+            </Link>
+            <Link className="gg-button gg-button--secondary" href="/register">
+              Become a certified guide
+            </Link>
+          </div>
+        </section>
+
+        <section className="guide-welcome__features" aria-label="Guide workspace highlights">
+          <article>
+            <span>01</span>
+            <h2>Respond faster</h2>
+            <p>See new tour offers, timing and guest needs in one clear queue.</p>
+          </article>
+          <article>
+            <span>02</span>
+            <h2>Stay tour-ready</h2>
+            <p>Keep certification, training and your public profile up to date.</p>
+          </article>
+          <article>
+            <span>03</span>
+            <h2>Track every cedi</h2>
+            <p>Follow completed tours, earnings and payout progress with confidence.</p>
+          </article>
+        </section>
       </div>
     );
   }

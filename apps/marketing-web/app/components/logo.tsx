@@ -20,10 +20,10 @@ export function LogoMark({ size = 28 }: { size?: number }) {
       width={size}
       xmlns="http://www.w3.org/2000/svg"
     >
-      <rect fill="#0b6e4f" height="32" rx="9" width="32" />
+      <rect fill="#0b3532" height="32" rx="9" width="32" />
       {/* Needle: asymmetric so it reads as pointing, not as a diamond. */}
       <path d="M16 5.5 L20.8 19.4 L16 16.5 L11.2 19.4 Z" fill="#ffffff" />
-      <circle cx="16" cy="24" r="2.1" fill="#f5b70a" />
+      <circle cx="16" cy="24" r="2.1" fill="#c9973d" />
     </svg>
   );
 }
@@ -34,7 +34,7 @@ export function Logo({ size = 28 }: { size?: number }) {
     <>
       <LogoMark size={size} />
       <span>
-        ProGuide<span style={{ color: "#f5b70a" }}>GH</span>
+        ProGuide<span style={{ color: "#c9973d" }}>GH</span>
       </span>
     </>
   );

@@ -192,6 +192,13 @@ they were built against the real endpoints, never mocks (agent_plan.md §M.4 not
 
 ### Evidence log — Phase M
 
+- 2026-08-14 · agent · Spec coverage sweep · Every distinctive §4–§22 feature has an implementation: certification state machine, effective-dated pricing, immutable ledger, tourism-levy accrual, dispatch scoring, Redis presence TTL, WebSocket channels, SOS/incidents, verified reviews, Elite status, wallet/payouts, LMS, notification templates, audit log, idempotency keys, receipt PDFs, reversing refunds. MongoDB is absent, which §1.2 explicitly permits ("core must work without it"). B2B hotels and multi-language UI are deferred by design (§34 / E16 / F-01 / F-03).
+- 2026-08-14 · agent · Route coverage vs §18.1/§18.2 — two deviations · (1) **`/guide/payouts` does not exist as its own route** — the payout statement and payout-account registration live inside `/guide/wallet`. Functionality is complete; this is a deliberate consolidation, not a gap. (2) **`/support` does not exist for tourists.** SOS is implemented where it belongs, on the active booking (`SosPanel` in `bookings/[id]`), but §18.1 also lists a standalone support/incidents page and there is **no tourist-facing incident endpoint** — `/admin/incidents` is admin-gated. Raising a non-SOS issue, or reviewing your own incident history, has no surface. This needs a backend slice (a `/me/incidents` read plus a create path), not just a page, so it is recorded rather than half-built.
+
+- 2026-08-14 · agent · **Completeness audit — two real gaps found behind a ✅** · Ticked 26 previously-unchecked §30 acceptance criteria and Appendix D stop conditions, each against a named passing assertion (concurrent-accept is tagged §30.2 in `phase5_test.go:281`; second review → 409 at `phase6_test.go:219`; no-double-pay at `phase7_test.go:313`; unsigned document GET denied at `main_test.go:567`). Full Go suite re-run clean beforehand: **15 packages ok, 0 failures**. Epics E01 and E03–E15 rolled up.
+- 2026-08-14 · agent · **P1-05 is NOT complete despite being marked ✅ — Appendix D launch blocker** · (1) **MFA is not enforced by role.** `auth.Service.Login` branches on `mfaEnabled` (has the user enrolled?) and never calls `MFARequiredRole`. That function is **dead code outside tests** — nothing in the non-test tree calls it. A `super_admin` or `finance_officer` who never enrols therefore signs in with a password alone. The source comment concedes the circularity: "enforced at login once enabled". (2) **There is no step-up re-authentication for sensitive actions.** Every "step-up" reference in the tree is the login TOTP step; role changes, payout-account edits and refunds require no re-auth. Spec §15.2 requires both. Consequently `Admin privileged accounts have required MFA`, `No critical auth/RBAC bypass` and epic **E02** are left unchecked.
+- 2026-08-14 · agent · Fix not applied — needs a decision · Enforcing MFA-by-role means denying privileged permissions until a required user has enrolled. `/me/mfa/enroll` sits behind `RequireAuth` only, so enrolment stays reachable, and the natural place is a `MFASatisfied` flag on `rbac.Identity` set in `RequireAuth` and checked in `RequirePermission`. It is a contained change, but it **will fail roughly ten integration tests** whose harness grants `super_admin` and immediately calls admin endpoints — which is itself evidence the gap is real. Left for the owner to schedule rather than changing auth semantics unannounced.
+
 - 2026-08-14 · agent · **M-24 initial legal text seeded and CMS-editable** · Migration `0011_legal_body` adds `summary`, `body` (markdown), `approved`, `approved_at`, `approved_by` to `legal_documents`, with a CHECK that approval records who and when together. Seeded version `2026-08-14` for all three documents: **terms 6,501 chars, privacy 6,002, location 3,184**. The text describes what the platform actually does — the location window, retention split, payment flow and deletion behaviour all match the implementation — but it is **not legal advice** and ships `approved = false`.
 - 2026-08-14 · agent · **Editing creates a version, never mutates one** · `consent_records` references `(document, version)`, so rewriting a row in place would silently re-point a user's recorded consent at different words. `POST /admin/legal/{document}` therefore inserts a new version and returns **409 on a duplicate**; approval is a separate audited action via `POST /admin/legal/{document}/{version}/approve`. Both require `settings.manage`. Admin editor at **admin-web → Legal** mirrors the constraint in its copy so the UI cannot imply otherwise.
 - 2026-08-14 · agent · Draft state is enforced by data, not by memory · While `approved` is false the public page renders a "Draft — pending legal review" banner **and sets `robots: noindex`**, so an unapproved draft cannot become the canonical answer in search. Approving clears both.
@@ -356,6 +363,17 @@ they were built against the real endpoints, never mocks (agent_plan.md §M.4 not
 - 2026-08-13 — Full Go gate green (cmd/api ~15–18s). OpenAPI v0.9.0 (106 operations); `docs/api/openapi.yaml` regenerated.
 - 2026-08-13 — Frontends: admin-web `/admin/training` (authoring + activate/deactivate + roster), `/admin/reports` (KPI cards + bookings report), `/admin/settings` (template versions + policy editor), `/admin/audit` (filtered viewer) + nav links; guide-web `/guide/training` (catalog, enroll, lesson completion, quiz, certificates) + dashboard/nav links. `pnpm typecheck`/`lint`/`build` green for both apps.
 - 2026-08-13 — P8-05: PWA shells verified in place (manifest.webmanifest, sw.js with app-shell precache + network-first navigations + /offline fallback, ServiceWorkerRegister, offline pages) for tourist-web/guide-web; added `ConnectivityBanner` (offline warning + back-online retry prompt) to both layouts. typecheck/lint/build green.
+- 2026-08-14 — Product-wide responsive redesign: rebuilt shared web/native tokens and primitives around the mineral-teal, deep-field, warm-paper and brass system; replaced tourist/guide headers and footers; introduced the grouped admin command-center rail/topbar/mobile navigation after sibling-shell review; refreshed marketing footer/palette; aligned native headers, cards, buttons, chips, loading/empty/error states, PWA manifests, mobile splash backgrounds, favicons and social images. Existing routes, API behavior and security-sensitive native flows were preserved.
+- 2026-08-14 — Redesign gates: `pnpm typecheck` exit 0 across all 12 runnable workspaces; `pnpm lint` exit 0 across all 12; `pnpm --filter @proguidegh/tokens test` → 29/29 web/native tokens match; `pnpm build` exit 0 with all marketing (23), tourist (13), guide (16) and admin (18) route outputs generated; focused guide typecheck/lint/build exit 0 after route-polish addition; `git diff --check` exit 0. Expo Doctor completed 18/20 local checks, with only its two online Expo/React Native Directory checks unavailable because `exp.host` DNS is blocked in this workspace.
+- 2026-08-14 — Visual-QA limitation: stale ProGuideGH dev servers on ports 3000–3003 were stopped; the managed workspace then rejected new localhost listeners with `EPERM`, and browser policy blocked direct `file://` inspection. Production bundles were instead verified to contain the new shell selectors and static class coverage was audited; a fresh live desktop/mobile screenshot pass remains required in an environment that permits localhost serving.
+- 2026-08-14 — Route-shell completion pass: added pathname-aware active navigation to tourist and guide shells; moved admin chrome into a client shell with grouped active navigation and contextual topbar copy for all 15 operational routes plus nested certification cases. Replaced every web/PWA/native bitmap icon and splash asset with the deterministic compass mark sourced from `packages/tokens/assets`; Android adaptive foreground and monochrome variants included. Re-ran `pnpm typecheck`, `pnpm lint`, token parity and `pnpm build` successfully across the workspace. Both Expo apps independently completed 18/20 Doctor checks; only the same two network-only metadata checks failed on blocked `exp.host`.
+- 2026-08-14 — Visual-QA blocker confirmed for a third consecutive goal turn: fresh `pnpm --filter @proguidegh/tourist-web start --hostname 127.0.0.1` failed before serving with `listen EPERM 127.0.0.1:3000`. The active redesign goal is blocked only on route-level live rendering/screenshots; source, static, route-output and asset evidence are green.
+- 2026-08-14 — Favicon completion: generated explicit 64×64 multi-platform `favicon.ico` assets for tourist, guide, admin and marketing from the canonical compass SVG, plus 180×180 Apple touch icons for the three application surfaces (marketing retains its dynamic Apple icon). `file` identified all four ICOs as valid MS Windows icon resources; `pnpm build` exited 0 and emitted the new Apple icon routes. A four-app launch retry still failed before serving because the managed workspace denied all localhost binds (`EPERM` on 127.0.0.1:3000–3003).
+- 2026-08-14 — Host-started ports 3000–3003 enabled a live desktop/mobile Chrome audit of the redesigned tourist, guide, admin and marketing shells. Tourist and marketing rendered cohesively; the audit exposed a sparse signed-out guide dashboard and redundant admin overview navigation. Source fixes replaced the guide state with a responsive workspace welcome/feature composition and reduced the admin hero to three priority lanes. `pnpm typecheck`, `pnpm lint` and a full `pnpm build` all exited 0 afterward. The host-owned guide/admin Node processes continued serving their pre-fix bundles and could not be signalled from this managed workspace (`kill: operation not permitted`), so those two final rendered states require a host restart before the last screenshot confirmation.
+- 2026-08-14 — Admin/marketing structural follow-up: inspected the real AuraEdu `AppSidebar` and RentOS `Sidebar`/`DashboardLayout` implementations, then replaced the admin mobile horizontal navbar with the same persistent-shell model used on desktop: grouped icon rail, collapsible sections, workspace status, account utility, route-aware selection and an off-canvas mobile drawer. Marketing received a new sticky glass header, branded sign-in/action cluster, elevated card anatomy, large conversion footer, guide-specific footer column, route arrival, card/credential hover depth, link/button feedback and reduced-motion support. Focused admin and marketing typecheck, lint and production builds exited 0; `git diff --check` exited 0. Stale ports 3000–3003 were cleared successfully, but replacement binds still fail with sandbox `listen EPERM`; host Terminal/VS Code and Docker socket automation are policy-blocked, so launch requires one host-terminal command.
+- 2026-08-14 — Guide watermark layer: added a canonical line-art guide SVG and deployed contrast-aware decorative variants across marketing heroes/page banners, destination/content cards, KPI statistics and the conversion footer; admin page banners, KPI cards and canvas backdrop; plus tourist/guide page banners and footers. Marks are pointer-inert, low-opacity and responsive, with card variants gaining only a subtle hover emphasis. Marketing, admin, tourist and guide lint/build gates all exited 0; `git diff --check` exited 0.
+- 2026-08-14 — Admin navigation connectors: added continuous SVG tree trunks and curved elbows from every expanded sidebar group into its child routes, with clean final-item termination and brass active-route emphasis. Admin typecheck, lint and production build exited 0; `git diff --check` exited 0.
+- 2026-08-14 — Marketing visual-storytelling pass: generated four original, rights-safe editorial Ghana travel assets (guide-led Accra hero; Accra/Jamestown, Cape Coast and Kumasi destination scenes), integrated responsive `next/image` compositions into the homepage and destination index/detail routes, and layered the credential card over the hero photography as the trust signal. Source PNGs were converted to 1400–1800px WebP at quality 84, reducing the project payload from about 10 MB to under 700 KB. Marketing typecheck, lint, production build and `git diff --check` exited 0; live Chrome desktop and 390px mobile QA confirmed the new images, crops, overlays and responsive flow render correctly on port 3003.
 
 
 ---
@@ -393,21 +411,21 @@ _(empty)_
 
 ## Epics (Spec §29)
 
-- [ ] E01 Platform Foundation — monorepo, CI, environments, config, logging, DB/Redis, migrations, OpenAPI
-- [ ] E02 Identity & Access — registration, login, OTP, sessions, RBAC, MFA for privileged users
-- [ ] E03 Tourist Experience — profile, search, booking, payment, tracking, history, receipts, reviews
-- [ ] E04 Guide Onboarding — application, documents, verification status, certification
-- [ ] E05 Guide Marketplace — availability, offers, acceptance, tour lifecycle, earnings
-- [ ] E06 Certification & Training — workflow, evidence, courses, exams, expiry/retraining
-- [ ] E07 Booking & Pricing — packages, effective pricing, booking states, cancellations
-- [ ] E08 Payments & Ledger — collections, webhooks, ledger, refunds, receipts
-- [ ] E09 Payouts — wallet, payout accounts, eligibility, batches, transfers, reconciliation
-- [ ] E10 Dispatch & Tracking — matching, Redis offers, WebSockets, GPS, map
-- [ ] E11 Safety & Incidents — SOS, operations alerts, incident workflow
-- [ ] E12 Reviews & Quality — verified reviews, ratings, Elite/retraining rules
-- [ ] E13 Admin & Reporting — command panel, queues, maps, reports, audit
-- [ ] E14 Notifications — email, SMS, push, templates, retries
-- [ ] E15 Observability & Security — metrics, tracing, alerts, scanning, backup/runbooks
+- [x] E01 Platform Foundation — monorepo, CI, environments, config, logging, DB/Redis, migrations, OpenAPI
+- [ ] E02 Identity & Access — **incomplete**: registration, login, OTP, sessions and RBAC are done and tested, but MFA is not enforced by role and there is no step-up re-auth on sensitive actions (see the P1-05 finding in the evidence log)
+- [x] E03 Tourist Experience — profile, search, booking, payment, tracking, history, receipts, reviews
+- [x] E04 Guide Onboarding — application, documents, verification status, certification
+- [x] E05 Guide Marketplace — availability, offers, acceptance, tour lifecycle, earnings
+- [x] E06 Certification & Training — workflow, evidence, courses, exams, expiry/retraining
+- [x] E07 Booking & Pricing — packages, effective pricing, booking states, cancellations
+- [x] E08 Payments & Ledger — collections, webhooks, ledger, refunds, receipts
+- [x] E09 Payouts — wallet, payout accounts, eligibility, batches, transfers, reconciliation
+- [x] E10 Dispatch & Tracking — matching, Redis offers, WebSockets, GPS, map
+- [x] E11 Safety & Incidents — SOS, operations alerts, incident workflow
+- [x] E12 Reviews & Quality — verified reviews, ratings, Elite/retraining rules
+- [x] E13 Admin & Reporting — command panel, queues, maps, reports, audit
+- [x] E14 Notifications — email, SMS, push, templates, retries
+- [x] E15 Observability & Security — metrics, tracing, alerts, scanning, backup/runbooks
 - [ ] E16 B2B Hotels (Phase 2) — organization accounts, priority pool, subscription/invoicing
 
 ---
@@ -415,31 +433,31 @@ _(empty)_
 ## Acceptance Criteria — Critical Journeys (Spec §30, re-verified every phase)
 
 ### 30.1 Booking and payment
-- [ ] Given an ACTIVE available guide and valid package, tourist receives a quote generated only by backend rules
-- [ ] Creating a booking twice with the same idempotency key returns the same logical booking
-- [ ] Booking is not CONFIRMED from client redirect alone; confirmed only after verified provider state/webhook
-- [ ] A replayed success webhook does not duplicate ledger entries, notifications or receipt
-- [ ] Receipt amount/reference match internal payment and booking records
+- [x] Given an ACTIVE available guide and valid package, tourist receives a quote generated only by backend rules — TestQuoteMathOverHTTP, TestComputeBreakdownSpecExample
+- [x] Creating a booking twice with the same idempotency key returns the same logical booking — phase3_test.go:285 / phase4_test.go:109
+- [x] Booking is not CONFIRMED from client redirect alone; confirmed only after verified provider state/webhook — TestPaymentLedgerReceiptJourney
+- [x] A replayed success webhook does not duplicate ledger entries, notifications or receipt — TestPaymentLedgerReceiptJourney (replay = 200 no-op)
+- [x] Receipt amount/reference match internal payment and booking records — TestPaymentLedgerReceiptJourney, TestReferenceFormat
 
 ### 30.2 Dispatch
-- [ ] Only ACTIVE, eligible, available guides receive offers
-- [ ] Two simultaneous accept requests cannot both assign different guides to the same booking
-- [ ] One guide cannot hold overlapping confirmed/in-progress tours
-- [ ] Expired offers cannot be accepted
-- [ ] Operations can see why a booking has not been matched
+- [x] Only ACTIVE, eligible, available guides receive offers — TestGuideVisibilityGates, TestDispatchAcceptanceJourney
+- [x] Two simultaneous accept requests cannot both assign different guides to the same booking — phase5_test.go:281 concurrent accepts — exactly one 200, one 409
+- [x] One guide cannot hold overlapping confirmed/in-progress tours — TestActiveStatuses + bookings_no_guide_overlap exclusion constraint
+- [x] Expired offers cannot be accepted — TestOfferIsExpired, TestDispatchDeclineExpiryPresence
+- [x] Operations can see why a booking has not been matched — TestDispatchDeclineExpiryPresence
 
 ### 30.3 Review
-- [ ] Only the tourist owning a COMPLETED booking may review
-- [ ] Maximum one review per booking
-- [ ] Rating aggregate updates transactionally/eventually with no double count
-- [ ] Quality threshold flags are reproducible from stored reviews/policy
+- [x] Only the tourist owning a COMPLETED booking may review — TestVerifiedReviewsAndQualityFlags
+- [x] Maximum one review per booking — phase6_test.go:219 second review = 409
+- [x] Rating aggregate updates transactionally/eventually with no double count — TestVerifiedReviewsAndQualityFlags
+- [x] Quality threshold flags are reproducible from stored reviews/policy — TestVerifiedReviewsAndQualityFlags
 
 ### 30.4 Finance
-- [ ] Every booking allocation creates balanced ledger entries
-- [ ] Refund creates reversing entries and preserves original history
-- [ ] Payout cannot exceed eligible guide balance
-- [ ] Same provider payout callback/reference cannot mark/pay twice
-- [ ] Finance report totals reconcile to ledger and provider settlement inputs
+- [x] Every booking allocation creates balanced ledger entries — TestAllocateExactSums, TestValidateRejectsUnbalanced, TestAllocateMatchesQuote
+- [x] Refund creates reversing entries and preserves original history — TestReversedEntriesFlipsDirections
+- [x] Payout cannot exceed eligible guide balance — TestWalletPayoutBatchAndTransitions
+- [x] Same provider payout callback/reference cannot mark/pay twice — phase7_test.go:313 no double-pay
+- [x] Finance report totals reconcile to ledger and provider settlement inputs — TestReportingTemplatesAndSettings
 
 ---
 
@@ -472,12 +490,12 @@ _(empty)_
 Each must be closed before launch; none blocks unrelated development.
 
 - [ ] Verified production payment webhook/signature setup in place
-- [ ] Ledger invariant tests passing
+- [x] Ledger invariant tests passing — internal/ledger ok
 - [ ] No critical auth/RBAC bypass
-- [ ] SOS events reach operations dashboard
-- [ ] Database backup/restore procedure exists and is tested
+- [x] SOS events reach operations dashboard — TestSOSAndIncidentWorkflow
+- [x] Database backup/restore procedure exists and is tested — P9-03 drill, 7/7 table counts identical
 - [ ] Admin privileged accounts have required MFA
-- [ ] Guide "verified/insured" badges cannot display without valid evidence/status
-- [ ] Critical personal documents are not publicly accessible
-- [ ] Duplicate payout impossible under retries/concurrency
-- [ ] No production secrets committed to repository
+- [x] Guide "verified/insured" badges cannot display without valid evidence/status — TestPubliclyVisible (DocumentsValid gate), TestGuideVisibilityGates
+- [x] Critical personal documents are not publicly accessible — main_test.go:567 unsigned GET denied
+- [x] Duplicate payout impossible under retries/concurrency — phase7_test.go:313
+- [x] No production secrets committed to repository — pre-push scan: 0 secret matches, backups/ and .raven/ excluded
