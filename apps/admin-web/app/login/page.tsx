@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Alert, Button, Input } from "@proguidegh/ui";
 import { api, errorMessage } from "../lib/api";
+import { AdminAuthShell } from "../components/AdminAuthShell";
 
 interface LoginResponse {
   mfa_required?: boolean;
@@ -49,13 +50,13 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="stack" aria-busy={pending}>
-      <section aria-labelledby="login-heading">
-        <h1 id="login-heading">Admin sign in</h1>
-        <p className="muted">
-          Restricted to authorized operations, finance and admin accounts.
-        </p>
-      </section>
+    <AdminAuthShell><div className="admin-auth__form" aria-busy={pending}>
+      <header aria-labelledby="login-heading">
+        <span className="admin-auth__lock" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></svg></span>
+        <p>Secure administrator access</p>
+        <h1 id="login-heading">Enter the command center.</h1>
+        <span>Use your approved operations, finance or administrator account.</span>
+      </header>
 
       {error ? (
         <Alert tone="error" title="Sign-in failed">
@@ -75,7 +76,7 @@ export default function LoginPage() {
           ) : null}
         </Alert>
       ) : (
-        <form className="stack" onSubmit={onSubmit}>
+        <form onSubmit={onSubmit}>
           <Input
             label="Email or phone number"
             name="identifier"
@@ -96,13 +97,14 @@ export default function LoginPage() {
             onChange={(e) => setPassword(e.target.value)}
             disabled={pending}
           />
-          <div>
+          <div className="admin-auth__submit">
             <Button type="submit" disabled={pending}>
               {pending ? "Signing in…" : "Sign in"}
             </Button>
+            <small><i aria-hidden="true" /> Encrypted session</small>
           </div>
         </form>
       )}
-    </div>
+    </div></AdminAuthShell>
   );
 }

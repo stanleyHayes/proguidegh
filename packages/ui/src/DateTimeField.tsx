@@ -1,0 +1,9 @@
+"use client";
+import { Select } from "./Select";
+export interface DateTimeFieldProps { label: string; name: string; value: string; onChange: (value: string) => void; includeTime?: boolean; required?: boolean; hint?: string; }
+const HOURS = Array.from({ length: 24 }, (_, hour) => String(hour).padStart(2, "0")); const MINUTES = ["00", "15", "30", "45"];
+export function DateTimeField({ label, name, value, onChange, includeTime = true, required, hint }: DateTimeFieldProps) {
+  const [date = "", time = "09:00"] = value.split("T"); const [hour = "09", minute = "00"] = time.split(":");
+  const updateDate = (nextDate: string) => onChange(nextDate ? `${nextDate}${includeTime ? `T${hour}:${minute}` : ""}` : ""); const updateTime = (nextHour: string, nextMinute: string) => onChange(date ? `${date}T${nextHour}:${nextMinute}` : "");
+  return <fieldset className={`gg-date-field${includeTime ? "" : " gg-date-field--date-only"}`}><legend>{label}</legend>{hint ? <p>{hint}</p> : null}<div className="gg-date-field__controls"><label><span>Date</span><span className="gg-date-field__input"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg><input type="text" inputMode="numeric" placeholder="YYYY-MM-DD" value={date} required={required} pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" onChange={(event) => updateDate(event.target.value.replace(/[^0-9-]/g, "").slice(0, 10))} /></span></label>{includeTime ? <><Select label="Hour" value={hour} onChange={(event) => updateTime(event.target.value, minute)}>{HOURS.map((item) => <option key={item} value={item}>{item}</option>)}</Select><Select label="Minute" value={minute} onChange={(event) => updateTime(hour, event.target.value)}>{MINUTES.map((item) => <option key={item} value={item}>{item}</option>)}</Select></> : null}</div><input type="hidden" name={name} value={value} /></fieldset>;
+}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Alert, Button, Card } from "@proguidegh/ui";
+import { Alert, Button, Card, Select } from "@proguidegh/ui";
 import { api, ApiError, errorMessage } from "../../lib/api";
 
 /**
@@ -80,10 +80,9 @@ export default function ReviewPanel({
         </Alert>
       ) : (
         <form className="stack" onSubmit={(e) => void submit(e)}>
-          <label htmlFor="review-rating">Rating</label>
-          <select
+          <Select label="Rating"
             id="review-rating"
-            value={rating}
+            value={String(rating)}
             onChange={(e) => setRating(Number(e.target.value))}
           >
             {[5, 4, 3, 2, 1].map((n) => (
@@ -91,7 +90,7 @@ export default function ReviewPanel({
                 {n} star{n === 1 ? "" : "s"}
               </option>
             ))}
-          </select>
+          </Select>
 
           <fieldset className="stack">
             <legend>What stood out? (optional)</legend>

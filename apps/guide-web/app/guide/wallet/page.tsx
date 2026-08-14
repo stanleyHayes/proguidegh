@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Alert, Badge, Button, Card } from "@proguidegh/ui";
+import { Alert, Badge, Button, Card, Select } from "@proguidegh/ui";
 import { api, ApiError, errorMessage, unwrap } from "../../lib/api";
 
 /**
@@ -209,15 +209,12 @@ export default function WalletPage() {
           <p className="muted">No payout account registered yet.</p>
         )}
         <form className="stack" onSubmit={(e) => void saveAccount(e)}>
-          <label>
-            Provider
-            <select value={provider} onChange={(e) => setProvider(e.target.value)}>
+          <Select label="Provider" value={provider} onChange={(e) => setProvider(e.target.value)}>
               <option value="mtn_momo">MTN Mobile Money</option>
               <option value="vodafone_cash">Telecel Cash</option>
               <option value="airteltigo">AT Money</option>
               <option value="bank">Bank transfer</option>
-            </select>
-          </label>
+          </Select>
           <label>
             Network
             <input

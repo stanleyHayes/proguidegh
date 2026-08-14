@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Alert, Badge, Button, Card, Input, Select } from "@proguidegh/ui";
+import { Alert, Badge, Button, Card, DateTimeField, EmptyState, Select } from "@proguidegh/ui";
 import { api, errorMessage } from "../lib/api";
 import {
   LANGUAGE_OPTIONS,
@@ -243,18 +243,18 @@ export default function SearchClient({
               </option>
             ))}
           </Select>
-          <Input
+          <DateTimeField
             label="Date & time"
             name="date"
-            type="datetime-local"
             value={filters.at}
-            onChange={(e) => update("at", e.target.value)}
+            onChange={(value) => update("at", value)}
           />
-          <div className="field">
+          <div className="field elite-field">
             <span className="gg-field__label" id="elite-label">
               Elite guides
             </span>
-            <label className="checkbox-row" htmlFor="elite">
+            <label className="elite-control" htmlFor="elite">
+              <span className="elite-control__copy"><strong>Elite status only</strong><small>Show the highest-rated certified guides.</small></span>
               <input
                 id="elite"
                 name="elite"
@@ -263,7 +263,7 @@ export default function SearchClient({
                 checked={filters.elite}
                 onChange={(e) => update("elite", e.target.checked)}
               />
-              Elite status only
+              <span className="elite-switch" aria-hidden="true"><i /></span>
             </label>
           </div>
         </div>
@@ -304,13 +304,7 @@ export default function SearchClient({
         ) : null}
 
         {guidesState === "ready" && guides.length === 0 ? (
-          <Alert tone="info" title="No guides match">
-            <p>
-              {searched
-                ? "No guides match these filters right now — widen your filters or try a different date."
-                : "No guides are available yet. Check back soon — certified guides are being onboarded."}
-            </p>
-          </Alert>
+          <EmptyState title="No guides match your search" description={searched ? "Try another region, remove a filter or choose a different tour date." : "Certified guides are still being added. Check back shortly."} action={searched ? <Button type="button" variant="secondary" onClick={onClear}>Reset all filters</Button> : undefined} />
         ) : null}
 
         {guidesState === "ready" && guides.length > 0 ? (
@@ -402,22 +396,18 @@ export default function SearchClient({
         ) : null}
 
         {packagesState === "ready" && packages.length === 0 ? (
-          <Alert tone="info" title="No packages yet">
-            <p>
-              The tour catalog is empty right now. Check back soon — certified
-              guides are being onboarded.
-            </p>
-          </Alert>
+          <EmptyState icon="catalog" title="The tour catalog is being prepared" description="New certified-guide packages will appear here as soon as they are published." />
         ) : null}
 
         {packagesState === "ready" && packages.length > 0 ? (
-          <div className="grid grid--cols-3" aria-label="Tour packages">
+          <div className="grid grid--cols-3 package-grid" aria-label="Tour packages">
             {packages.map((pkg) => (
               <Card key={pkg.id} title={packageName(pkg)}>
-                <p>
+                <div className="package-card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M4 19V8l8-5 8 5v11M8 21v-8h8v8M3 21h18"/></svg></div>
+                <p className="package-card__price">
                   <strong>{formatPrice(pkg.base_price, pkg.currency)}</strong>
                 </p>
-                <p className="muted">{formatDuration(pkg.duration_minutes)}</p>
+                <p className="package-card__duration"><span aria-hidden="true">◷</span>{formatDuration(pkg.duration_minutes)}</p>
                 <Badge tone="neutral">Certified guide included</Badge>
               </Card>
             ))}

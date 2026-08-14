@@ -8,6 +8,7 @@ import {
   Badge,
   Button,
   Card,
+  DateTimeField,
   Input,
   Select,
   Textarea,
@@ -32,12 +33,6 @@ import {
 
 type LoadState = "loading" | "not-found" | "error" | "ready";
 type QuoteState = "idle" | "loading" | "error" | "ready";
-
-function minStartValue(): string {
-  // datetime-local "now" in local time, floored to the minute.
-  const now = new Date(Date.now() - new Date().getTimezoneOffset() * 60_000);
-  return now.toISOString().slice(0, 16);
-}
 
 export default function GuideClient({ guideId }: { guideId: string }) {
   const router = useRouter();
@@ -287,15 +282,12 @@ export default function GuideClient({ guideId }: { guideId: string }) {
               </option>
             ))}
           </Select>
-          <Input
+          <DateTimeField
             label="Date & time"
             name="starts_at"
-            type="datetime-local"
             required
-            min={minStartValue()}
             value={startsAt}
-            onChange={(e) => setStartsAt(e.target.value)}
-            disabled={submitting}
+            onChange={setStartsAt}
           />
           <Input
             label="Guests"

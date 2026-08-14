@@ -1,0 +1,4 @@
+import type { ReactNode } from "react";
+export function EmptyState({ title, description, action, icon = "search" }: { title: string; description: string; action?: ReactNode; icon?: "search" | "catalog" }) {
+  return <section className="gg-empty" aria-live="polite"><div className="gg-empty__visual" aria-hidden="true"><span /><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">{icon === "catalog" ? <><path d="M14 16h36v38H14zM21 10h22v12H21zM22 31h20M22 39h14"/><path d="m43 47 4 4 8-10"/></> : <><circle cx="28" cy="28" r="15"/><path d="m39 39 13 13M20 28h16M28 20v16"/></>}</svg><i /></div><div><p>Nothing here yet</p><h3>{title}</h3><span>{description}</span>{action ? <div className="gg-empty__action">{action}</div> : null}</div></section>;
+}

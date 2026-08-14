@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Alert, Badge, Button, Card } from "@proguidegh/ui";
+import { Alert, Badge, Button, Card, Select } from "@proguidegh/ui";
 import { api, ApiError, errorMessage } from "../../lib/api";
 import { Unauthorized } from "../../components/Unauthorized";
 
@@ -161,15 +161,12 @@ export default function SettingsPage() {
             Key
             <input value={tKey} onChange={(e) => setTKey(e.target.value)} required placeholder="booking.confirmed" />
           </label>
-          <label>
-            Channel
-            <select value={tChannel} onChange={(e) => setTChannel(e.target.value)}>
+          <Select label="Channel" value={tChannel} onChange={(e) => setTChannel(e.target.value)}>
               <option value="email">email</option>
               <option value="sms">sms</option>
               <option value="push">push</option>
               <option value="in_app">in_app</option>
-            </select>
-          </label>
+          </Select>
           <label>
             Subject
             <input value={tSubject} onChange={(e) => setTSubject(e.target.value)} />

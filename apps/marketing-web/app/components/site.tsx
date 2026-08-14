@@ -8,6 +8,8 @@ import type { ReactNode } from "react";
 import { APP_URL, type MarketingContent } from "../lib/content";
 import { Logo } from "./logo";
 import { ActiveLink } from "./active-link";
+import { FooterIcon } from "./footer-icon";
+import { MarketingMobileNav } from "./mobile-nav";
 
 export function Rule({ onField = false }: { onField?: boolean }) {
   return <hr aria-hidden className={onField ? "rule rule--onField" : "rule"} />;
@@ -32,6 +34,7 @@ export function Nav() {
         <div className="nav__actions">
           <a className="nav__signin" href={`${APP_URL}/login`}>Sign in</a>
           <a className="btn btn--gold btn--sm" href={`${APP_URL}/search`}><span>Find a guide</span><b aria-hidden="true">↗</b></a>
+          <MarketingMobileNav />
         </div>
       </div>
     </nav>
@@ -58,19 +61,19 @@ export function Footer({ content }: { content: MarketingContent }) {
             <h4>Explore</h4>
             <ul>
               <li>
-                <a href={`${APP_URL}/search`}>Find a guide</a>
+                <a href={`${APP_URL}/search`}><FooterIcon name="search" />Find a guide</a>
               </li>
               <li>
-                <ActiveLink href="/destinations">Destinations</ActiveLink>
+                <ActiveLink href="/destinations"><FooterIcon name="pin" />Destinations</ActiveLink>
               </li>
               <li>
-                <ActiveLink href="/safety">Safety</ActiveLink>
+                <ActiveLink href="/safety"><FooterIcon name="safety" />Safety</ActiveLink>
               </li>
               <li>
-                <ActiveLink href="/pricing">Pricing</ActiveLink>
+                <ActiveLink href="/pricing"><FooterIcon name="price" />Pricing</ActiveLink>
               </li>
               <li>
-                <ActiveLink href="/become-a-guide">Become a guide</ActiveLink>
+                <ActiveLink href="/become-a-guide"><FooterIcon name="badge" />Become a guide</ActiveLink>
               </li>
             </ul>
           </div>
@@ -78,28 +81,28 @@ export function Footer({ content }: { content: MarketingContent }) {
             <h4>Support & policy</h4>
             <ul>
               <li>
-                <ActiveLink href="/about">About</ActiveLink>
+                <ActiveLink href="/about"><FooterIcon name="about" />About</ActiveLink>
               </li>
               <li>
-                <ActiveLink href="/contact">Contact</ActiveLink>
+                <ActiveLink href="/contact"><FooterIcon name="mail" />Contact</ActiveLink>
               </li>
               <li>
-                <ActiveLink href="/faq">Common questions</ActiveLink>
+                <ActiveLink href="/faq"><FooterIcon name="help" />Common questions</ActiveLink>
               </li>
               <li>
-                <ActiveLink href="/legal/terms">Terms of service</ActiveLink>
+                <ActiveLink href="/legal/terms"><FooterIcon name="terms" />Terms of service</ActiveLink>
               </li>
               <li>
-                <ActiveLink href="/legal/privacy">Privacy policy</ActiveLink>
+                <ActiveLink href="/legal/privacy"><FooterIcon name="privacy" />Privacy policy</ActiveLink>
               </li>
               <li>
-                <a href={`mailto:${content.contact.supportEmail}`}>Contact support</a>
+                <a href={`mailto:${content.contact.supportEmail}`}><FooterIcon name="mail" />Contact support</a>
               </li>
             </ul>
           </div>
           <div>
             <h4>For guides</h4>
-            <ul><li><ActiveLink href="/become-a-guide">Become certified</ActiveLink></li><li><a href={`${APP_URL}/login`}>Guide sign in</a></li><li><ActiveLink href="/contact">Partner with us</ActiveLink></li></ul>
+            <ul><li><ActiveLink href="/become-a-guide"><FooterIcon name="badge" />Become certified</ActiveLink></li><li><a href={`${APP_URL}/login`}><FooterIcon name="login" />Guide sign in</a></li><li><ActiveLink href="/contact"><FooterIcon name="partner" />Partner with us</ActiveLink></li></ul>
           </div>
         </div>
 
