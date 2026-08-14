@@ -44,6 +44,12 @@ const secureTokenStore = {
 };
 
 function resolveApiUrl(): string {
+  // EXPO_PUBLIC_* is inlined at build time, which is how EAS injects
+  // per-environment config (`eas secret:create`, or apps/*/.env.production
+  // for a local production build). app.json's extra.apiUrl stays as the
+  // fallback so a plain `expo start` still works with no env file.
+  const fromEnv = process.env.EXPO_PUBLIC_API_URL;
+  if (fromEnv) return fromEnv.replace(/\/+$/, "");
   const extra = Constants.expoConfig?.extra as { apiUrl?: string } | undefined;
   return (extra?.apiUrl ?? "http://localhost:8080").replace(/\/+$/, "");
 }

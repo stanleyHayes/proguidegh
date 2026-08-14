@@ -35,7 +35,7 @@
 - [ ] All applications build in CI — CI workflow committed (`.github/workflows/ci.yml`); first real CI run requires pushing to GitHub (blocked on remote repo credential, see evidence)
 - [x] API connects to Postgres/Redis
 - [x] Migration up/down process tested
-- [ ] Staging endpoints reachable — blocked on Render/Vercel accounts + secrets (Human); staging deploy skeleton ready (`.github/workflows/deploy-staging.yml`, `infra/render/render.yaml`)
+- [ ] Staging endpoints reachable — blocked on Render/Vercel accounts + secrets (Human); staging deploy skeleton ready (`.github/workflows/deploy-staging.yml`, `render.yaml`)
 - [x] No business functionality yet
 
 ### Evidence log — Phase 0

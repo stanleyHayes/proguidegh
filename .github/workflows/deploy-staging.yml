@@ -1,7 +1,7 @@
 # Deploy staging — manual skeleton (Spec §24.1/§24.3)
 #
 # Target architecture: Vercel deploys the three Next.js apps, Render deploys
-# the Go api + worker (see infra/render/render.yaml), and database migrations
+# the Go api + worker (see render.yaml), and database migrations
 # run as a controlled pre-deploy step. Migrations must be backwards-compatible
 # for rolling deploys; destructive migrations are never auto-run (Spec §24.3).
 #
@@ -61,7 +61,7 @@ jobs:
         run: |
           # TODO(env): requires RENDER_DEPLOY_HOOK_API secret (Render dashboard -> service -> Settings -> Deploy Hook).
           echo "TODO(env): curl -fsSL -X POST \"\$RENDER_DEPLOY_HOOK_API\""
-          echo "Render Blueprint: infra/render/render.yaml (service: proguidegh-api)"
+          echo "Render Blueprint: render.yaml (service: proguidegh-api)"
 
   deploy-worker:
     name: Deploy worker to Render
@@ -73,7 +73,7 @@ jobs:
         run: |
           # TODO(env): requires RENDER_DEPLOY_HOOK_WORKER secret.
           echo "TODO(env): curl -fsSL -X POST \"\$RENDER_DEPLOY_HOOK_WORKER\""
-          echo "Render Blueprint: infra/render/render.yaml (service: proguidegh-worker)"
+          echo "Render Blueprint: render.yaml (service: proguidegh-worker)"
 
   deploy-web:
     name: Deploy Next.js apps to Vercel

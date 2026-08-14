@@ -30,6 +30,10 @@ const ACCESS_KEY = "pgh_access_token";
 const ACTIVE_BOOKING_KEY = "pgh_active_booking_id";
 
 function apiUrl(): string {
+  // Same precedence as the session module: EXPO_PUBLIC_API_URL (inlined at
+  // build time by EAS) then app.json extra.apiUrl.
+  const fromEnv = process.env.EXPO_PUBLIC_API_URL;
+  if (fromEnv) return fromEnv.replace(/\/+$/, "");
   const extra = Constants.expoConfig?.extra as { apiUrl?: string } | undefined;
   return (extra?.apiUrl ?? "http://localhost:8080").replace(/\/+$/, "");
 }
